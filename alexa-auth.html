@@ -177,8 +177,7 @@
         window.location.href = redirectUrl.toString();
 
       } catch(e) {
-        console.error("Sign in error:", e);
-        showError("Could not connect — check your internet connection and try again.");
+        showError("Error: " + (e && e.message ? e.message : String(e)));
         btn.disabled = false; btn.textContent = "Connect to Alexa →";
       }
     }
