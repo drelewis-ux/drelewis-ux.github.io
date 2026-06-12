@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Connect Smarter Pool to Alexa</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: linear-gradient(135deg, #0a1628 0%, #0d2137 50%, #0a3d5c 100%);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    .card {
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 20px;
+      padding: 40px 36px;
+      width: 100%;
+      max-width: 400px;
+    }
+    .logo {
+      text-align: center;
+      margin-bottom: 28px;
+    }
+    .logo-icon {
+      width: 64px;
+      height: 64px;
+      background: linear-gradient(135deg, #00b4d8, #0077b6);
+      border-radius: 16px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 32px;
+      margin-bottom: 12px;
+    }
+    .logo h1 { color: #fff; font-size: 22px; font-weight: 700; }
+    .logo p { color: rgba(255,255,255,0.5); font-size: 13px; margin-top: 4px; }
+    .alexa-badge {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(0,180,216,0.1);
+      border: 1px solid rgba(0,180,216,0.3);
+      border-radius: 10px;
+      padding: 10px 14px;
+      margin-bottom: 24px;
+    }
+    .alexa-badge p { color: rgba(255,255,255,0.7); font-size: 13px; line-height: 1.4; }
+    .alexa-badge p strong { color: #00b4d8; }
+    label { display: block; color: rgba(255,255,255,0.6); font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; }
+    input {
+      width: 100%;
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.15);
+      border-radius: 10px;
+      padding: 12px 14px;
+      color: #fff;
+      font-size: 15px;
+      margin-bottom: 16px;
+      outline: none;
+    }
+    input:focus { border-color: #00b4d8; }
+    input::placeholder { color: rgba(255,255,255,0.3); }
+    button {
+      width: 100%;
+      background: linear-gradient(135deg, #00b4d8, #0077b6);
+      color: white;
+      border: none;
+      border-radius: 12px;
+      padding: 14px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      margin-top: 4px;
+    }
+    button:disabled { opacity: 0.6; }
+    .error {
+      background: rgba(239,68,68,0.1);
+      border: 1px solid rgba(239,68,68,0.3);
+      color: #fca5a5;
+      border-radius: 10px;
+      padding: 10px 14px;
+      font-size: 13px;
+      margin-bottom: 16px;
+      display: none;
+    }
+    .footer { text-align: center; margin-top: 20px; color: rgba(255,255,255,0.3); font-size: 12px; }
+    .footer a { color: rgba(255,255,255,0.4); text-decoration: none; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div class="logo">
+      <div class="logo-icon">🏊</div>
+      <h1>Smarter Pool</h1>
+      <p>by Lewis Tech</p>
+    </div>
+    <div class="alexa-badge">
+      <span style="font-size:18px;">🔵</span>
+      <p>Linking your pool to <strong>Amazon Alexa</strong>.<br>Sign in with your Smarter Pool account.</p>
+    </div>
+    <div class="error" id="errorBox"></div>
+    <label>Email</label>
+    <input type="email" id="email" placeholder="your@email.com" autocomplete="email">
+    <label>Password</label>
+    <input type="password" id="password" placeholder="••••••••" autocomplete="current-password">
+    <button id="btn" onclick="signIn()">Connect to Alexa →</button>
+    <div class="footer">
+      <a href="https://lewistech.io/privacy">Privacy Policy</a> ·
+      <a href="https://lewistech.io/support">Support</a>
+    </div>
+  </div>
+
+  <script>
+    const SUPABASE_URL = "https://ajckfhaalcfdkjlsidgv.supabase.co";
+    const SUPABASE_ANON = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFqY2tmaGFhbGNmZGtqbHNpZGd2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODAzNzY2NjYsImV4cCI6MjA5NTk1MjY2Nn0.ZNqP0jrLpx3q4lzhiPj2j_jQm4zHkCftSX2DPZxLI-M";
+
+    // Parse params from URL
+    const params = new URLSearchParams(window.location.search);
+    const state = params.get("state") || "";
+    const redirect_uri = params.get("redirect_uri") || "";
+
+    async function signIn() {
+      const email = document.getElementById("email").value.trim();
+      const password = document.getElementById("password").value;
+      const btn = document.getElementById("btn");
+      const errorBox = document.getElementById("errorBox");
+
+      if (!email || !password) { showError("Please enter your email and password."); return; }
+
+      btn.disabled = true;
+      btn.textContent = "Connecting…";
+      errorBox.style.display = "none";
+
+      try {
+        // Sign in with Supabase
+        const res = await fetch(SUPABASE_URL + "/auth/v1/token?grant_type=password", {
+          method: "POST",
+          headers: { "Content-Type": "application/json", "apikey": SUPABASE_ANON },
+          body: JSON.stringify({ email, password })
+        });
+        const data = await res.json();
+        if (!res.ok || !data.access_token) {
+          showError("Incorrect email or password. Please try again.");
+          btn.disabled = false; btn.textContent = "Connect to Alexa →";
+          return;
+        }
+
+        // Exchange for Alexa auth code via Edge Function
+        const codeRes = await fetch(SUPABASE_URL + "/functions/v1/alexa-auth-code", {
+          method: "POST",
+          headers: { "Content-Type": "application/json", "Authorization": "Bearer " + data.access_token },
+          body: JSON.stringify({ state, redirect_uri })
+        });
+        const codeData = await codeRes.json();
+        if (!codeData.code) { showError("Server error. Please try again."); btn.disabled = false; btn.textContent = "Connect to Alexa →"; return; }
+
+        // Redirect back to Alexa with the auth code
+        const redirectUrl = new URL(redirect_uri);
+        redirectUrl.searchParams.set("code", codeData.code);
+        redirectUrl.searchParams.set("state", state);
+        window.location.href = redirectUrl.toString();
+
+      } catch(e) {
+        showError("Connection error. Please try again.");
+        btn.disabled = false; btn.textContent = "Connect to Alexa →";
+      }
+    }
+
+    function showError(msg) {
+      const el = document.getElementById("errorBox");
+      el.textContent = msg;
+      el.style.display = "block";
+    }
+  </script>
+</body>
+</html>
