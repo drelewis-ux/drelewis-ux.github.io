@@ -120,7 +120,6 @@
     const SUPABASE_URL = "https://ajckfhaalcfdkjlsidgv.supabase.co";
     const SUPABASE_ANON = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFqY2tmaGFhbGNmZGtqbHNpZGd2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODAzNzY2NjYsImV4cCI6MjA5NTk1MjY2Nn0.ZNqP0jrLpx3q4lzhiPj2j_jQm4zHkCftSX2DPZxLI-M";
 
-    // Parse params from URL
     const params = new URLSearchParams(window.location.search);
     const state = params.get("state") || "";
     const redirect_uri = params.get("redirect_uri") || "";
@@ -132,42 +131,54 @@
       const errorBox = document.getElementById("errorBox");
 
       if (!email || !password) { showError("Please enter your email and password."); return; }
-
       btn.disabled = true;
       btn.textContent = "Connecting…";
       errorBox.style.display = "none";
 
       try {
-        // Sign in with Supabase
-        const res = await fetch(SUPABASE_URL + "/auth/v1/token?grant_type=password", {
+        // Step 1: Sign in with Supabase auth
+        const authRes = await fetch(SUPABASE_URL + "/auth/v1/token?grant_type=password", {
           method: "POST",
-          headers: { "Content-Type": "application/json", "apikey": SUPABASE_ANON },
+          headers: {
+            "Content-Type": "application/json",
+            "apikey": SUPABASE_ANON,
+            "Authorization": "Bearer " + SUPABASE_ANON
+          },
           body: JSON.stringify({ email, password })
         });
-        const data = await res.json();
-        if (!res.ok || !data.access_token) {
+        const authData = await authRes.json();
+        if (!authRes.ok || !authData.access_token) {
           showError("Incorrect email or password. Please try again.");
           btn.disabled = false; btn.textContent = "Connect to Alexa →";
           return;
         }
 
-        // Exchange for Alexa auth code via Edge Function
+        // Step 2: Get Alexa auth code using the user's token
         const codeRes = await fetch(SUPABASE_URL + "/functions/v1/alexa-auth-code", {
           method: "POST",
-          headers: { "Content-Type": "application/json", "Authorization": "Bearer " + data.access_token },
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": "Bearer " + authData.access_token,
+            "apikey": SUPABASE_ANON
+          },
           body: JSON.stringify({ state, redirect_uri })
         });
         const codeData = await codeRes.json();
-        if (!codeData.code) { showError("Server error. Please try again."); btn.disabled = false; btn.textContent = "Connect to Alexa →"; return; }
+        if (!codeData.code) {
+          showError("Server error — could not link account. Please try again.");
+          btn.disabled = false; btn.textContent = "Connect to Alexa →";
+          return;
+        }
 
-        // Redirect back to Alexa with the auth code
+        // Step 3: Redirect back to Alexa
         const redirectUrl = new URL(redirect_uri);
         redirectUrl.searchParams.set("code", codeData.code);
         redirectUrl.searchParams.set("state", state);
         window.location.href = redirectUrl.toString();
 
       } catch(e) {
-        showError("Connection error. Please try again.");
+        console.error("Sign in error:", e);
+        showError("Could not connect — check your internet connection and try again.");
         btn.disabled = false; btn.textContent = "Connect to Alexa →";
       }
     }
