@@ -1,0 +1,3612 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#000000">
+<title>Lewis Pool</title>
+<style>
+/* ── Reset ── */
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+html, body { background: #000; color: #fff; font-family: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', sans-serif; min-height: 100vh; overflow-x: hidden; -webkit-font-smoothing: antialiased; }
+
+/* ── iOS Color Tokens ── */
+:root {
+  --bg: #000; --bg2: #1C1C1E; --bg3: #2C2C2E; --bg4: #3A3A3C;
+  --label: rgba(255,255,255,1); --label2: rgba(235,235,245,0.6); --label3: rgba(235,235,245,0.3); --label4: rgba(235,235,245,0.18);
+  --sep: rgba(84,84,88,0.65);
+  --fill: rgba(120,120,128,0.36); --fill2: rgba(120,120,128,0.32); --fill3: rgba(118,118,128,0.24);
+  --blue: #0A84FF; --green: #30D158; --orange: #FF9F0A; --red: #FF453A; --teal: #5AC8FA; --purple: #BF5AF2;
+  --r-sm: 6px; --r-md: 10px; --r-lg: 12px; --r-xl: 16px;
+}
+[data-theme="light"] {
+  --bg: #F2F2F7; --bg2: #FFFFFF; --bg3: #F2F2F7; --bg4: #E5E5EA;
+  --label: rgba(0,0,0,1); --label2: rgba(60,60,67,0.6); --label3: rgba(60,60,67,0.3); --label4: rgba(60,60,67,0.18);
+  --sep: rgba(60,60,67,0.29);
+  --fill: rgba(120,120,128,0.2); --fill2: rgba(120,120,128,0.16); --fill3: rgba(118,118,128,0.12);
+  --blue: #007AFF; --green: #34C759; --orange: #FF9500; --red: #FF3B30; --teal: #32ADE6; --purple: #AF52DE;
+}
+[data-theme="light"] body { background: #F2F2F7; color: #000; }
+[data-theme="light"] .temp-card,
+[data-theme="light"] .rpm-card,
+[data-theme="light"] .lights-card,
+[data-theme="light"] .settings-card,
+[data-theme="light"] .tuya-setup,
+[data-theme="light"] .shop-hero,
+[data-theme="light"] .chem-card,
+[data-theme="light"] .q-card,
+[data-theme="light"] .weather-strip,
+[data-theme="light"] .pump-bar,
+[data-theme="light"] .conn-bar { box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+[data-theme="light"] .bottom-nav { background: rgba(255,255,255,0.85); border-color: rgba(0,0,0,0.1); }
+[data-theme="light"] .nav-item svg { stroke: #8E8E93; stroke-width: 1.8; }
+[data-theme="light"] .nav-item.active svg { stroke: #007AFF; stroke-width: 2.2; }
+[data-theme="light"] .nav-label { color: #8E8E93; }
+[data-theme="light"] .nav-item.active .nav-label { color: #007AFF; font-weight: 600; }
+[data-theme="light"] .greeting em { color: #007AFF; }
+[data-theme="light"] .weather-strip { border: 1px solid rgba(0,0,0,0.1); }
+[data-theme="light"] .weather-item { border-right: 1px solid rgba(0,0,0,0.1); }
+[data-theme="light"] .section-label { color: #6C6C70; }
+[data-theme="light"] .weather-val { color: #1C1C1E; }
+[data-theme="light"] .weather-label { color: #6C6C70; }
+[data-theme="light"] .chem-name { color: #6C6C70; }
+[data-theme="light"] .chem-unit { color: #6C6C70; }
+[data-theme="light"] .weather-val.warm { color: #FF9500; }
+[data-theme="light"] .weather-val.cool { color: #007AFF; }
+[data-theme="light"] .conn-bar.ok { background: rgba(52,199,89,0.1); }
+[data-theme="light"] .need-chip { border: 1px solid rgba(0,0,0,0.15); color: #3C3C43; }
+[data-theme="light"] .need-chip svg, [data-theme="light"] .need-chip span { color: #3C3C43; }
+[data-theme="light"] .pump-bar.active { background: rgba(0,122,255,0.1); }
+[data-theme="light"] .swatch[style*="background: #fff"],
+[data-theme="light"] .swatch[style*="background:#fff"],
+[data-theme="light"] .swatch[style*="background: white"] { border: 2px solid #E5E5EA !important; }
+[data-theme="light"] input[type=range] { background: rgba(120,120,128,0.3); }
+
+/* ── App ── */
+.app { max-width: 390px; margin: 0 auto; padding: 0 0 180px; }
+
+/* ── Header ── */
+header { padding: 60px 16px 12px; }
+.logo { width: 180px; max-width: 60vw; margin-bottom: 8px; display: block; }
+.greeting { font-size: 34px; font-weight: 700; letter-spacing: 0.37px; }
+.greeting em { font-style: normal; color: var(--teal); }
+.header-date { font-size: 15px; color: var(--label2); margin-top: 2px; }
+
+/* ── Connection Bar ── */
+.conn-bar { display: flex; align-items: center; justify-content: space-between; background: var(--bg2); border-radius: var(--r-xl); padding: 14px 16px; margin: 8px 16px 0; gap: 10px; box-shadow: 0 4px 16px rgba(0,0,0,0.3); }
+.conn-bar.ok { background: rgba(48,209,88,0.1); }
+.conn-bar.warn { background: rgba(255,159,10,0.1); }
+.conn-left { display: flex; align-items: center; gap: 10px; }
+.conn-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--label4); flex-shrink: 0; transition: background .4s; }
+.conn-bar.ok .conn-dot { background: var(--green); box-shadow: 0 0 6px var(--green); animation: pulse 2.5s infinite; }
+.conn-bar.warn .conn-dot { background: var(--orange); }
+.conn-label { font-size: 15px; font-weight: 500; color: var(--label); }
+.conn-sub { font-size: 12px; color: var(--label2); margin-top: 1px; }
+.conn-retry { font-size: 15px; color: var(--blue); background: none; border: none; cursor: pointer; font-family: inherit; font-weight: 500; padding: 4px; }
+
+/* ── Weather Strip ── */
+.weather-strip { display: flex; gap: 0; margin: 8px 16px 0; background: var(--bg2); border-radius: var(--r-xl); overflow: hidden; box-shadow: 0 4px 16px rgba(0,0,0,0.3); }
+.weather-item { flex: 1; text-align: center; padding: 16px 6px; border-right: 1px solid rgba(255,255,255,0.1); min-height: 80px; display: flex; flex-direction: column; justify-content: center; gap: 4px; }
+.weather-item:last-child { border-right: none; }
+.weather-label { font-size: 11px; font-weight: 500; color: var(--label3); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 4px; }
+.weather-val { font-size: 20px; font-weight: 600; color: var(--label); }
+.weather-val.warm { color: var(--orange); }
+.weather-val.cool { color: var(--teal); }
+
+/* ── Section Label ── */
+.section-label { font-size: 14px; font-weight: 600; color: rgba(235,235,245,0.65); text-transform: uppercase; letter-spacing: 0.5px; padding: 24px 16px 10px; margin-top: 8px; }
+
+/* ── Temp Card ── */
+.weather-icon-bg { position: absolute; top: 20px; right: -10px; transform: none; opacity: 0.22; pointer-events: none; user-select: none; z-index: 0; }
+.temp-header { position: relative; z-index: 1; }
+.temp-card { background: var(--bg2); border-radius: var(--r-xl); margin: 0 16px; padding: 16px 18px; position: relative; overflow: hidden; box-shadow: 0 4px 20px rgba(0,0,0,0.35); }
+.temp-card::before { content: ''; position: absolute; top: 0; right: 0; width: 120px; height: 120px; background: radial-gradient(circle, rgba(90,200,250,0.08) 0%, transparent 70%); pointer-events: none; }
+.temp-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px; position: relative; z-index: 1; }
+.temp-eyebrow { font-size: 13px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; color: var(--label2); }
+.temp-badge { font-size: 12px; font-weight: 600; padding: 3px 10px; border-radius: 20px; }
+.badge-off { background: var(--fill); color: var(--label2); }
+.badge-heating { background: rgba(255,159,10,0.2); color: var(--orange); }
+.temp-number { position: relative; z-index: 1; font-size: 62px; font-weight: 200; letter-spacing: -2px; line-height: 1; color: var(--label); font-variant-numeric: tabular-nums; }
+.temp-number.heating { color: var(--orange); }
+.temp-number.cool { color: var(--teal); }
+.temp-suffix { font-size: 20px; font-weight: 300; color: var(--label2); vertical-align: super; }
+.temp-target { font-size: 13px; color: var(--label2); margin-top: 2px; }
+.slider-section { margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--sep); }
+.slider-labels { display: flex; justify-content: space-between; font-size: 12px; color: var(--label3); margin-bottom: 6px; font-weight: 500; }
+input[type=range] { -webkit-appearance: none; width: 100%; height: 6px; border-radius: 3px; background: var(--fill2); outline: none; cursor: pointer; }
+input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 28px; height: 28px; border-radius: 50%; background: #fff; box-shadow: 0 3px 10px rgba(0,0,0,0.5); cursor: pointer; }
+.heater-row { display: flex; justify-content: space-between; align-items: center; padding-top: 10px; margin-top: 10px; border-top: 1px solid var(--sep); }
+.heater-label { font-size: 17px; color: var(--label); }
+.heater-sub { font-size: 13px; color: var(--label2); margin-top: 1px; }
+/* iOS Switch */
+.ios-switch { position: relative; width: 51px; height: 31px; flex-shrink: 0; }
+.ios-switch input { opacity: 0; width: 0; height: 0; position: absolute; }
+.ios-switch-track { position: absolute; inset: 0; background: var(--fill2); border-radius: 15.5px; cursor: pointer; transition: background .3s; }
+.ios-switch-track::after { content: ''; position: absolute; top: 2px; left: 2px; width: 27px; height: 27px; border-radius: 50%; background: white; box-shadow: 0 2px 6px rgba(0,0,0,.35); transition: transform .3s cubic-bezier(.25,.46,.45,.94); }
+.ios-switch input:checked + .ios-switch-track { background: var(--orange); }
+.ios-switch input:checked + .ios-switch-track::after { transform: translateX(20px); }
+
+/* ── Pump Bar ── */
+.pump-bar { background: var(--bg2); border-radius: var(--r-xl); margin: 0 16px; padding: 16px 18px; display: flex; align-items: center; gap: 14px; cursor: pointer; transition: all .15s; box-shadow: 0 4px 20px rgba(0,0,0,0.35); }
+.pump-bar:active { opacity: 0.7; }
+.pump-bar.active { background: rgba(10,132,255,0.12); }
+.pump-bar-icon { width: 36px; height: 36px; border-radius: 9px; background: var(--fill2); display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: background .3s; }
+.pump-bar.active .pump-bar-icon { background: var(--blue); }
+.pump-bar-body { flex: 1; }
+.pump-bar-title { font-size: 16px; font-weight: 600; color: var(--label); }
+.pump-bar-stats { font-size: 13px; color: var(--label2); margin-top: 2px; }
+.pump-bar-state { font-weight: 600; }
+.pump-bar-state.on { color: var(--blue); }
+.pump-bar-state.off { color: var(--label3); }
+
+/* ── 3-Grid ── */
+.three-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; padding: 0 16px; }
+.q-card { background: var(--bg2); border-radius: var(--r-xl); padding: 16px 14px; cursor: pointer; transition: all .15s; user-select: none; min-height: 96px; display: flex; flex-direction: column; justify-content: space-between; box-shadow: 0 4px 12px rgba(0,0,0,0.25); }
+.q-card:active { opacity: 0.7; transform: scale(0.97); }
+.q-card.active { background: rgba(10,132,255,0.15); }
+.q-icon-svg { stroke: var(--label2); display: block; margin-bottom: 8px; }
+.q-card.active .q-icon-svg { stroke: var(--blue); }
+.q-name { font-size: 11px; font-weight: 600; color: var(--label2); text-transform: uppercase; letter-spacing: 0.06em; }
+.q-state { font-size: 14px; font-weight: 500; color: var(--label3); margin-top: 2px; }
+.q-card.active .q-state { color: var(--blue); }
+
+/* ── Tabs ── */
+.tab-content { display: none; }
+.tab-content.active { display: block; }
+
+/* ── Lights ── */
+.lights-card { background: var(--bg2); border-radius: var(--r-xl); margin: 0 16px; padding: 20px; box-shadow: 0 4px 20px rgba(0,0,0,0.35); }
+.lights-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+.lights-title { font-size: 17px; font-weight: 600; }
+.color-preview { height: 4px; border-radius: 2px; margin-bottom: 16px; background: var(--fill3); transition: background .4s; }
+.swatches { display: flex; gap: 12px; flex-wrap: wrap; padding: 6px 0; }
+.swatch { width: 48px; height: 48px; border-radius: 50%; cursor: pointer; border: 3px solid transparent; transition: transform .2s, border-color .2s, box-shadow .2s; flex-shrink: 0; }
+.swatch:active { transform: scale(0.92); }
+.swatch.selected { border-color: #007AFF; border-width: 4px; transform: scale(1.08); box-shadow: 0 0 0 2px rgba(0,122,255,0.25); }
+.swatch-off { background: var(--fill2); }
+.swatch-white { background: #fff; }
+.swatch-blue { background: radial-gradient(circle, #409CFF, #0A84FF); }
+.swatch-teal { background: radial-gradient(circle, #63E6E2, #32ADE6); }
+.swatch-purple { background: radial-gradient(circle, #DA8FFF, #BF5AF2); }
+.swatch-red { background: radial-gradient(circle, #FF6961, #FF453A); }
+.swatch-green { background: radial-gradient(circle, #34C759, #30D158); }
+.swatch-party { background: conic-gradient(#FF453A,#FF9F0A,#30D158,#5AC8FA,#BF5AF2,#FF453A); }
+/* Scenes */
+.scenes-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; padding: 0 16px; margin-bottom: 120px; }
+.scene-card { border-radius: var(--r-xl); padding: 16px; cursor: pointer; min-height: 90px; display: flex; flex-direction: column; justify-content: flex-end; transition: transform .15s; position: relative; overflow: hidden; }
+.scene-card:active { transform: scale(0.96); }
+  .scene-card::before { content: ""; position: absolute; inset: 0; background: rgba(0,0,0,0.35); border-radius: inherit; pointer-events: none; }
+.scene-card.selected::after { content: '✓'; position: absolute; top: 10px; right: 12px; font-size: 14px; font-weight: 700; color: white; }
+.scene-name { font-size: 14px; font-weight: 700; color: white; text-shadow: 0 2px 6px rgba(0,0,0,.7); position: relative; }
+.scene-desc { font-size: 12px; color: rgba(255,255,255,.9); margin-top: 2px; text-shadow: 0 1px 4px rgba(0,0,0,.7); position: relative; }
+.scene-icon { font-size: 28px; position: absolute; top: 12px; right: 12px; }
+.scene-caribbean { background: linear-gradient(135deg,#00B4D8,#0077B6); }
+.scene-party { background: conic-gradient(from 180deg,#FF453A,#FF9F0A,#30D158,#5AC8FA,#BF5AF2,#FF453A); }
+.scene-sunset { background: linear-gradient(135deg,#FF6B35,#F7C59F,#FF453A); }
+.scene-romance { background: linear-gradient(135deg,#FF2D55,#FF6B98,#BF5AF2); }
+.scene-royal { background: linear-gradient(135deg,#5E5CE6,#BF5AF2); }
+.scene-white { background: linear-gradient(135deg,#8E8E93,#AEAEB2); }
+
+/* ── Chem ── */
+.sensor-header { display: flex; justify-content: space-between; align-items: center; padding: 0 16px; margin-bottom: 8px; }
+.sensor-title { font-size: 15px; font-weight: 600; }
+.live-dot { display: inline-flex; align-items: center; gap: 5px; font-size: 12px; font-weight: 500; color: var(--label2); }
+.live-dot .dot-circle { width: 7px; height: 7px; border-radius: 50%; background: var(--label4); flex-shrink: 0; }
+.live-dot.connected { color: var(--green); }
+.live-dot.connected .dot-circle { background: var(--green); box-shadow: 0 0 5px var(--green); animation: pulse 2s infinite; }
+.chem-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; padding: 0 16px; margin-bottom: 24px; }
+.chem-card { background: var(--bg2); border-radius: var(--r-xl); padding: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.3); }
+.chem-name { font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: var(--label2); margin-bottom: 2px; }
+.chem-val { font-size: 34px; font-weight: 200; color: var(--label); line-height: 1; font-variant-numeric: tabular-nums; letter-spacing: -1px; margin: 8px 0 4px; }
+.chem-unit { font-size: 11px; color: var(--label3); font-weight: 400; margin-left: 1px; }
+.chem-bar-wrap { margin-top: 8px; height: 3px; background: var(--fill3); border-radius: 2px; overflow: hidden; }
+.chem-bar { height: 100%; border-radius: 2px; }
+.chem-range { font-size: 11px; color: var(--label3); margin-top: 4px; display: flex; justify-content: space-between; }
+.tuya-setup { background: var(--bg2); border-radius: var(--r-xl); padding: 20px; margin: 0 16px 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.35); }
+.tuya-setup h3 { font-size: 22px; font-weight: 700; margin-bottom: 6px; }
+.tuya-setup p { font-size: 16px; color: var(--label2); line-height: 1.5; margin-bottom: 16px; }
+.tuya-field { margin-bottom: 20px; }
+.tuya-field label { display: block; font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: var(--label2); margin-bottom: 6px; }
+.tuya-field input, .tuya-field select { width: 100%; background: var(--bg3); border: 1px solid rgba(255,255,255,0.15); border-radius: 12px; padding: 14px 16px; color: var(--label); font-family: inherit; font-size: 17px; outline: none; }
+.btn-primary { width: 100%; padding: 16px; background: var(--blue); border: none; border-radius: 14px; color: white; font-family: inherit; font-size: 17px; font-weight: 600; cursor: pointer; min-height: 52px; box-shadow: 0 4px 16px rgba(10,132,255,0.4); }
+.btn-primary:active { opacity: .8; }
+
+/* ── Shop ── */
+.shop-hero { background: var(--bg2); border-radius: var(--r-xl); padding: 20px; margin: 0 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.35); }
+.shop-hero h2 { font-size: 22px; font-weight: 700; margin-bottom: 4px; }
+.shop-hero p { font-size: 16px; color: var(--label2); line-height: 1.5; margin-bottom: 16px; }
+.zip-row { display: flex; gap: 8px; }
+.zip-input { flex: 1; background: var(--bg3); border: 1px solid rgba(255,255,255,0.15); border-radius: 12px; padding: 13px 16px; color: var(--label); font-family: inherit; font-size: 17px; outline: none; min-height: 48px; }
+.zip-btn { background: var(--blue); border: none; border-radius: 12px; padding: 13px 20px; color: white; font-family: inherit; font-size: 15px; font-weight: 600; cursor: pointer; min-height: 48px; }
+.need-chips { display: flex; flex-wrap: wrap; gap: 7px; padding: 0 16px; margin-bottom: 16px; }
+.need-chip { display: flex; align-items: center; gap: 6px; background: var(--bg2); border-radius: 22px; padding: 10px 16px; font-size: 15px; color: var(--label2); cursor: pointer; border: 1px solid rgba(255,255,255,0.12); font-family: inherit; user-select: none; min-height: 44px; }
+.need-chip:active { opacity: .7; }
+.need-chip.selected { background: var(--blue); color: white; }
+.shop-search-btn { width: calc(100% - 32px); margin: 0 16px 32px; padding: 16px; background: var(--blue); border: none; border-radius: 14px; color: white; font-family: inherit; font-size: 17px; font-weight: 600; cursor: pointer; display: block; box-shadow: 0 4px 16px rgba(10,132,255,0.4); min-height: 52px; }
+.shop-search-btn:active { opacity: .8; }
+.shop-search-btn:disabled { background: var(--fill2); color: var(--label3); cursor: not-allowed; }
+.results-area { padding: 0 16px; }
+.search-spinner { width: 32px; height: 32px; border: 2.5px solid var(--fill2); border-top-color: var(--blue); border-radius: 50%; animation: spin .7s linear infinite; margin: 40px auto 14px; }
+.price-card { background: var(--bg2); border-radius: var(--r-xl); padding: 16px 18px; margin-bottom: 10px; display: flex; align-items: flex-start; gap: 14px; cursor: pointer; text-decoration: none; box-shadow: 0 2px 8px rgba(0,0,0,0.2); }
+.price-card:active { opacity: .7; }
+.price-card-body { flex: 1; min-width: 0; }
+.price-card-name { font-size: 15px; font-weight: 500; color: var(--label); margin-bottom: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.price-card-meta { font-size: 12px; color: var(--label2); }
+.price-card-right { text-align: right; flex-shrink: 0; }
+.price-tag { font-size: 20px; font-weight: 600; color: var(--label); font-variant-numeric: tabular-nums; }
+.price-tag.best { color: var(--green); }
+.store-badge { display: inline-block; font-size: 11px; font-weight: 600; padding: 2px 7px; border-radius: 5px; margin-top: 3px; text-transform: uppercase; }
+.badge-amazon { background: rgba(255,153,0,.15); color: var(--orange); }
+.badge-walmart { background: rgba(0,113,206,.15); color: #409CFF; }
+.badge-homedepot { background: rgba(255,100,0,.15); color: var(--orange); }
+.badge-local { background: rgba(48,209,88,.15); color: var(--green); }
+
+/* ── Settings ── */
+.settings-card { background: var(--bg2); border-radius: var(--r-xl); margin: 0 16px; overflow: hidden; box-shadow: 0 4px 20px rgba(0,0,0,0.35); margin-bottom: 16px; }
+.settings-row { display: flex; align-items: center; gap: 12px; padding: 14px 16px; border-bottom: 1px solid rgba(255,255,255,0.08); min-height: 52px; }
+.settings-row:last-child { border-bottom: none; }
+.settings-icon { width: 30px; height: 30px; border-radius: 7px; display: flex; align-items: center; justify-content: center; font-size: 15px; flex-shrink: 0; }
+.icon-blue { background: var(--blue); }
+.icon-orange { background: var(--orange); }
+.icon-green { background: var(--green); }
+.icon-purple { background: var(--purple); }
+.icon-teal { background: var(--teal); }
+.settings-body { flex: 1; }
+.settings-label { font-size: 16px; color: var(--label); }
+.settings-sub { font-size: 13px; color: var(--label2); margin-top: 1px; }
+/* Toggle */
+.toggle { position: relative; width: 51px; height: 31px; flex-shrink: 0; }
+.toggle input { opacity: 0; width: 0; height: 0; position: absolute; }
+.toggle-track { position: absolute; inset: 0; background: var(--fill2); border-radius: 15.5px; cursor: pointer; transition: background .3s; }
+.toggle-track::after { content: ''; position: absolute; top: 2px; left: 2px; width: 27px; height: 27px; border-radius: 50%; background: white; box-shadow: 0 2px 6px rgba(0,0,0,.35); transition: transform .3s cubic-bezier(.25,.46,.45,.94); }
+.toggle input:checked + .toggle-track { background: var(--green); }
+.toggle input:checked + .toggle-track::after { transform: translateX(20px); }
+/* RPM Slider */
+.rpm-card { background: var(--bg2); border-radius: var(--r-xl); margin: 0 16px; padding: 20px; box-shadow: 0 4px 20px rgba(0,0,0,0.35); }
+.rpm-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
+.rpm-label { font-size: 16px; font-weight: 600; }
+.rpm-display { font-size: 28px; font-weight: 200; color: var(--blue); }
+.rpm-presets { display: flex; gap: 8px; margin-top: 14px; padding-top: 14px; border-top: 1px solid var(--sep); }
+.rpm-preset { flex: 1; padding: 8px 4px; text-align: center; background: var(--bg3); border-radius: 10px; font-size: 11px; font-weight: 600; color: var(--label2); cursor: pointer; border: none; font-family: inherit; }
+.rpm-preset.active { background: var(--blue); color: white; }
+
+/* ── Pool Girl Deb ── */
+.pb-fab { position: fixed; bottom: 100px; right: 20px; z-index: 999; width: 52px; height: 52px; border-radius: 26px; background: var(--blue); border: none; cursor: pointer; box-shadow: 0 4px 20px rgba(10,132,255,.45); display: flex; align-items: center; justify-content: center; font-size: 22px; }
+.pb-drawer { position: fixed; bottom: 0; left: 0; right: 0; z-index: 300; max-width: 390px; margin: 0 auto; background: rgba(28,28,30,.95); backdrop-filter: blur(40px); border-top: 0.5px solid var(--sep); border-radius: 12px 12px 0 0; box-shadow: 0 -4px 30px rgba(0,0,0,.5); transform: translateY(100%); transition: transform .4s cubic-bezier(.32,.72,0,1); display: flex; flex-direction: column; height: 75vh; max-height: 600px; }
+.pb-drawer.open { transform: translateY(0); }
+.pb-handle-row { padding: 10px 0 0; display: flex; justify-content: center; }
+.pb-handle { width: 36px; height: 5px; background: var(--fill2); border-radius: 3px; }
+.pb-header { display: flex; align-items: center; gap: 10px; padding: 12px 16px 10px; border-bottom: 0.5px solid var(--sep); flex-shrink: 0; }
+.pb-avatar { width: 36px; height: 36px; border-radius: 18px; background: var(--blue); display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; }
+.pb-name { font-size: 16px; font-weight: 600; }
+.pb-tagline { font-size: 12px; color: var(--label2); margin-top: 1px; }
+.pb-close { margin-left: auto; background: var(--fill3); border: none; border-radius: 50%; width: 28px; height: 28px; color: var(--label2); font-size: 16px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+.pb-messages { flex: 1; overflow-y: auto; padding: 12px 16px; display: flex; flex-direction: column; gap: 8px; }
+.pb-msg { display: flex; gap: 7px; align-items: flex-end; }
+.pb-msg.user { flex-direction: row-reverse; }
+.pb-bubble { max-width: 80%; padding: 10px 14px; border-radius: 18px; font-size: 15px; line-height: 1.5; }
+.pb-msg.bot .pb-bubble { background: var(--bg3); border-bottom-left-radius: 4px; color: var(--label); }
+.pb-msg.user .pb-bubble { background: var(--blue); border-bottom-right-radius: 4px; color: white; }
+.pb-quick-wrap { padding: 8px 16px; display: flex; gap: 6px; flex-wrap: wrap; flex-shrink: 0; border-top: 0.5px solid var(--sep); }
+.pb-quick { background: var(--bg3); border: none; border-radius: 16px; padding: 6px 12px; font-size: 15px; color: var(--blue); cursor: pointer; font-family: inherit; font-weight: 500; }
+.pb-input-row { display: flex; gap: 8px; padding: 10px 16px 28px; flex-shrink: 0; border-top: 0.5px solid var(--sep); }
+.pb-input { flex: 1; background: var(--bg3); border: none; border-radius: 20px; padding: 10px 16px; color: var(--label); font-family: inherit; font-size: 16px; outline: none; }
+.pb-input::placeholder { color: var(--label4); }
+.pb-send { width: 34px; height: 34px; border-radius: 17px; flex-shrink: 0; align-self: flex-end; background: var(--blue); border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 14px; color: white; font-weight: 700; }
+.pb-overlay { position: fixed; inset: 0; z-index: 290; background: rgba(0,0,0,0); pointer-events: none; transition: background .3s; }
+.pb-overlay.show { background: rgba(0,0,0,.4); pointer-events: all; }
+.pb-typing { display: flex; gap: 4px; padding: 10px 14px; background: var(--bg3); border-radius: 18px; border-bottom-left-radius: 4px; width: fit-content; }
+.pb-typing span { width: 6px; height: 6px; border-radius: 50%; background: var(--label3); animation: pb-bounce .9s infinite; }
+.pb-typing span:nth-child(2) { animation-delay: .15s; }
+.pb-typing span:nth-child(3) { animation-delay: .3s; }
+
+/* ── Nav ── */
+.bottom-nav {
+    position: fixed; bottom: 16px; left: 50%; transform: translateX(-50%);
+    width: calc(100% - 32px); max-width: 380px;
+    background: rgba(36,36,40,0.88);
+    backdrop-filter: blur(30px) saturate(200%);
+    -webkit-backdrop-filter: blur(30px) saturate(200%);
+    border: 0.5px solid rgba(255,255,255,0.08);
+    border-radius: 30px;
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 6px 6px;
+    box-shadow: 0 8px 40px rgba(0,0,0,0.6), 0 1px 0 rgba(255,255,255,0.05) inset;
+    z-index: 100;
+  }
+.nav-item { display: flex; flex-direction: column; align-items: center; gap: 3px; cursor: pointer; opacity: 0.55; transition: all .2s ease; padding: 6px 10px 4px; min-width: 52px; border: none; background: none; font-family: inherit; border-radius: 14px; }
+.nav-item.active {
+    opacity: 1;
+    background: rgba(255,255,255,0.15);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+  }
+.nav-item img { transition: transform .2s ease; filter: drop-shadow(0 2px 6px rgba(0,0,0,.4)); }
+.nav-item.active img { transform: scale(1.12) translateY(-2px); filter: drop-shadow(0 4px 10px rgba(10,132,255,.35)); }
+.nav-label { font-size: 10px; font-weight: 500; color: rgba(255,255,255,0.7); letter-spacing: 0.01em; }
+.nav-item.active .nav-label { color: #0A84FF; font-weight: 600; }
+
+/* ── Animations ── */
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.5} }
+@keyframes spin { to { transform: rotate(360deg); } }
+@keyframes pb-cursor { 0%,100%{opacity:1} 50%{opacity:0} }
+  .pb-cursor { animation: pb-cursor .7s infinite; }
+  @keyframes pb-bounce { 0%,80%,100%{transform:translateY(0);opacity:.5} 40%{transform:translateY(-5px);opacity:1} }
+@keyframes fadeup { from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:translateY(0)} }
+
+  /* Onboarding */
+  .onboarding { position: fixed; inset: 0; background: #1C1C1E; z-index: 9999; display: none; flex-direction: column; align-items: center; justify-content: center; padding: 40px 32px; }
+  .onboarding-logo { font-size: 64px; margin-bottom: 16px; }
+  .onboarding-title { font-size: 28px; font-weight: 700; color: #fff; text-align: center; margin-bottom: 8px; }
+  .onboarding-sub { font-size: 16px; color: rgba(255,255,255,0.6); text-align: center; margin-bottom: 48px; line-height: 1.5; }
+  .onboarding-steps { width: 100%; max-width: 340px; }
+  .onboarding-step { background: rgba(255,255,255,0.08); border-radius: 16px; padding: 20px; margin-bottom: 12px; display: flex; align-items: center; gap: 16px; }
+  .onboarding-step-icon { font-size: 28px; flex-shrink: 0; }
+  .onboarding-step-text { font-size: 14px; color: rgba(255,255,255,0.8); line-height: 1.5; }
+  .onboarding-step-title { font-size: 15px; font-weight: 600; color: #fff; margin-bottom: 2px; }
+  .onboarding-input { width: 100%; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); border-radius: 14px; padding: 14px 16px; color: #fff; font-size: 17px; font-family: inherit; outline: none; margin-bottom: 12px; }
+  .onboarding-input::placeholder { color: rgba(255,255,255,0.3); }
+  .onboarding-btn { width: 100%; padding: 16px; background: #0A84FF; border: none; border-radius: 14px; color: #fff; font-size: 17px; font-weight: 600; font-family: inherit; cursor: pointer; margin-bottom: 12px; }
+  .onboarding-demo { width: 100%; padding: 12px; background: transparent; border: none; color: rgb(142,142,147); font-size: 17px; font-family: inherit; cursor: pointer; }
+  .onboarding-page { display: none; width: 100%; max-width: 340px; text-align: center; }
+  .onboarding-page.active { display: block; }
+  .onboarding-dots { display: flex; gap: 6px; justify-content: center; margin-bottom: 32px; }
+  .onboarding-dot { width: 8px; height: 8px; border-radius: 4px; background: rgba(255,255,255,0.3); transition: all .3s; opacity: 0.5; }
+  .onboarding-dot.active { width: 20px; background: #0A84FF; opacity: 1.0; }
+
+/* ═══ SHOP / DELIVERY ═══ */
+.shop-product-card { background:var(--card-bg); border-radius:14px; padding:14px; display:flex; align-items:center; gap:12px; border:1px solid rgba(255,255,255,0.06); cursor:pointer; transition:border-color 0.15s; margin-bottom:0; }
+.shop-product-card:active { border-color:var(--teal); }
+.shop-product-icon { font-size:28px; flex-shrink:0; }
+.shop-product-info { flex:1; }
+.shop-product-name { font-size:14px; font-weight:600; }
+.shop-product-desc { font-size:12px; color:var(--label2); margin-top:2px; }
+.shop-product-price { font-size:16px; font-weight:700; color:var(--teal); flex-shrink:0; }
+</style>
+  <script src="https://js.stripe.com/v3/"></script>
+</head>
+<body>
+
+  <!-- Privacy Policy Modal -->
+  <div id="privacyModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:10000;overflow-y:auto;padding:40px 20px;">
+    <div style="background:#1C1C1E;border-radius:20px;max-width:600px;margin:0 auto;padding:28px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
+        <div style="font-size:20px;font-weight:700;color:#fff;">Privacy Policy</div>
+        <button onclick="document.getElementById('privacyModal').style.display='none'" style="background:none;border:none;color:rgba(255,255,255,0.5);font-size:24px;cursor:pointer;">×</button>
+      </div>
+      <div style="font-size:14px;color:rgba(255,255,255,0.7);line-height:1.8;">
+        <p style="margin-bottom:16px;"><strong style="color:#fff;">Lewis Tech LLC</strong> — Smarter Pool Privacy Policy<br><small>Last updated: June 2026</small></p>
+        <p style="margin-bottom:12px;"><strong style="color:#fff;">What we collect</strong><br>Smarter Pool collects pool chemistry readings (pH, chlorine, ORP, temperature) and equipment status from your pool controller. This data is stored locally on your device and optionally synced to our secure cloud (Supabase) for historical trends and alerts.</p>
+        <p style="margin-bottom:12px;"><strong style="color:#fff;">What we don't collect</strong><br>We do not collect your name, address, payment information, or any personally identifiable information without your explicit consent. We do not sell your data to third parties.</p>
+        <p style="margin-bottom:12px;"><strong style="color:#fff;">AI assistant</strong><br>When you use Pool Girl Deb, your messages are sent to Anthropic's API (claude.ai) via our secure proxy. Anthropic's privacy policy applies to these interactions. We do not store your AI conversation history.</p>
+        <p style="margin-bottom:12px;"><strong style="color:#fff;">Local network</strong><br>The app communicates directly with your Smarter Pool controller on your local WiFi network. No pool control commands are routed through external servers.</p>
+        <p style="margin-bottom:12px;"><strong style="color:#fff;">Contact</strong><br>privacy@lewistech.io</p>
+      </div>
+    </div>
+  </div>
+
+  
+  <!-- Onboarding Screen -->
+  <div class="onboarding" id="onboarding">
+    <div style="font-size:64px;margin-bottom:16px;">🏊</div>
+    <div style="font-size:28px;font-weight:700;color:#fff;text-align:center;margin-bottom:8px;">Smarter Pool</div>
+    <div style="font-size:16px;color:rgb(174,174,178);text-align:center;margin-bottom:32px;line-height:1.5;">Your pool, always under control</div>
+    
+    <div class="onboarding-dots">
+      <div class="onboarding-dot active" id="dot0"></div>
+      <div class="onboarding-dot" id="dot1"></div>
+      <div class="onboarding-dot" id="dot2"></div>
+    </div>
+
+    <div class="onboarding-page active" id="ob-page-0">
+      <div style="font-size:20px;font-weight:700;color:#fff;margin-bottom:12px;">Live pool control</div>
+      <div style="font-size:15px;color:rgba(255,255,255,0.6);margin-bottom:32px;line-height:1.6;">Control your pump, lights, jets and heater from anywhere. Get alerts when something goes wrong.</div>
+      <button class="onboarding-btn" onclick="obNext()">Continue</button>
+      <button class="onboarding-demo" onclick="enableDemoMode()">Try demo mode</button>
+    </div>
+
+    <div class="onboarding-page" id="ob-page-1">
+      <div style="font-size:20px;font-weight:700;color:#fff;margin-bottom:12px;">Chemistry monitoring</div>
+      <div style="font-size:15px;color:rgba(255,255,255,0.6);margin-bottom:32px;line-height:1.6;">Live pH, chlorine, ORP, and temperature readings from your YINMIK sensor. Never guess about your water again.</div>
+      <button class="onboarding-btn" onclick="obNext()">Continue</button>
+      <button class="onboarding-demo" onclick="enableDemoMode()">Try demo mode</button>
+    </div>
+
+    <div class="onboarding-page" id="ob-page-2">
+      <div style="font-size:20px;font-weight:700;color:#fff;margin-bottom:12px;">Connect your controller</div>
+      <div style="font-size:15px;color:rgba(255,255,255,0.6);margin-bottom:20px;line-height:1.6;">We'll scan your WiFi network to find your Smarter Pool controller automatically.</div>
+      <button class="onboarding-btn" id="ob-scan-btn" onclick="scanForController()">🔍 Scan my network</button>
+      <div id="ob-scan-status" style="font-size:13px;color:rgba(255,255,255,0.4);margin-bottom:16px;min-height:20px;"></div>
+      <input class="onboarding-input" type="text" id="ob-ip" placeholder="Or enter IP manually: 192.168.1.x">
+      <button class="onboarding-btn" style="background:rgba(255,255,255,0.15);" onclick="obConnect()">Connect</button>
+      <button class="onboarding-demo" onclick="enableDemoMode()">Try demo mode first</button>
+          <button class="onboarding-demo" onclick="hideOnboarding()" style="margin-top:8px;opacity:0.6">Skip setup →</button>
+    </div>
+  </div>
+
+  <div class="app">
+
+  <!-- HEADER -->
+  <header>
+    <svg width="80" height="80" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg"><rect width="80" height="80" rx="22" fill="#111"/><text x="40" y="36" text-anchor="middle" font-size="12" font-weight="500" fill="rgba(255,255,255,0.5)" font-family="-apple-system,sans-serif" letter-spacing="2">SMARTER</text><text x="40" y="54" text-anchor="middle" font-size="20" font-weight="700" fill="white" font-family="-apple-system,sans-serif" letter-spacing="-0.5">pool</text><rect x="26" y="60" width="28" height="3" rx="1.5" fill="#30D6B4"/></svg>
+    <h1 class="greeting">Good <em id="timeGreet">Evening</em></h1>
+    <div class="header-date" id="headerDate"></div>
+  </header>
+
+  <!-- CONNECTION BAR -->
+  <div style="display:flex;justify-content:space-between;align-items:center;padding:0 16px 4px;">
+    <div id="locationSwitcher" onclick="showLocationMenu()" style="display:flex;align-items:center;gap:6px;cursor:pointer;opacity:0.7;">
+      <span id="locationName" style="font-size:12px;color:rgba(255,255,255,0.5);">Home</span>
+      <span style="font-size:10px;color:rgba(255,255,255,0.3);">▾</span>
+    </div>
+    <div style="display:flex;align-items:center;gap:6px;">
+      <div id="connDot" style="width:7px;height:7px;border-radius:50%;background:rgba(255,255,255,0.2);transition:background 0.3s;"></div>
+      <div id="connLabel" style="font-size:11px;color:rgba(255,255,255,0.3);"></div>
+    </div>
+  </div>
+
+  <!-- PUMP ALERT BANNER -->
+  <div id="pumpAlert" style="display:none;margin:8px 16px 0;background:rgba(255,69,58,0.15);border:1.5px solid rgba(255,69,58,0.4);border-radius:14px;padding:14px 16px;animation:fadeup .3s ease;">
+    <div style="display:flex;align-items:center;gap:10px;">
+      <div style="font-size:22px;">⚠️</div>
+      <div style="flex:1;">
+        <div style="font-size:16px;font-weight:700;color:#FF453A;" id="pumpAlertTitle">Filter Pump Stopped</div>
+        <div style="font-size:13px;color:rgba(255,255,255,0.7);margin-top:2px;" id="pumpAlertMsg">Your pool pump has stopped unexpectedly. Tap to restart.</div>
+      </div>
+      <button onclick="togglePump()" style="background:#FF453A;border:none;border-radius:10px;padding:8px 14px;color:white;font-family:inherit;font-size:14px;font-weight:600;cursor:pointer;">Restart</button>
+    </div>
+  </div>
+
+  <!-- WEATHER STRIP -->
+  <div class="weather-strip">
+    <div class="weather-item">
+      <div class="weather-label">Outside</div>
+      <div class="weather-val warm" id="outsideTemp">—</div>
+    </div>
+    <div class="weather-item">
+      <div class="weather-label">UV Index</div>
+      <div class="weather-val" id="uvIndex">—</div>
+    </div>
+    <div class="weather-item">
+      <div class="weather-label">Sunset</div>
+      <div class="weather-val" id="sunset">—</div>
+    </div>
+  </div>
+
+  <!-- ═══ TAB: HOME ═══ -->
+  <div class="tab-content active" id="tab-home">
+
+    <div class="section-label">Temperature &amp; Heating</div>
+    <div class="temp-card" id="tempCard">
+      <div class="weather-icon-bg" id="weatherIconBg"><svg width="100" height="100" viewBox="0 0 140 140" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="70" cy="70" r="36" fill="#FF9500"/><circle cx="70" cy="70" r="28" fill="#FFB800"/><circle cx="70" cy="70" r="20" fill="#FFD60A"/><line x1="70" y1="4" x2="70" y2="22" stroke="#FF9500" stroke-width="5" stroke-linecap="round"/><line x1="70" y1="118" x2="70" y2="136" stroke="#FF9500" stroke-width="5" stroke-linecap="round"/><line x1="4" y1="70" x2="22" y2="70" stroke="#FF9500" stroke-width="5" stroke-linecap="round"/><line x1="118" y1="70" x2="136" y2="70" stroke="#FF9500" stroke-width="5" stroke-linecap="round"/><line x1="22" y1="22" x2="35" y2="35" stroke="#FF9500" stroke-width="5" stroke-linecap="round"/><line x1="105" y1="105" x2="118" y2="118" stroke="#FF9500" stroke-width="5" stroke-linecap="round"/><line x1="118" y1="22" x2="105" y2="35" stroke="#FF9500" stroke-width="5" stroke-linecap="round"/><line x1="35" y1="105" x2="22" y2="118" stroke="#FF9500" stroke-width="5" stroke-linecap="round"/></svg></div>
+      <div class="temp-header">
+        <div class="temp-eyebrow">Pool Water</div>
+        <div class="temp-badge badge-off" id="heatBadge">Heater Off</div>
+      </div>
+      <div>
+        <span class="temp-number" id="tempBig">—</span><span class="temp-suffix">°F</span>
+      </div>
+      <div class="temp-target" id="tempTarget">Target —°F</div>
+      <div class="slider-section">
+        <div class="slider-labels"><span>65°</span><span id="sliderVal">—</span><span>104°</span></div>
+        <input type="range" min="65" max="104" value="88" id="targetSlider" oninput="onTempSlide()">
+      </div>
+      <div class="heater-row">
+        <div>
+          <div class="heater-label">Heater</div>
+          <div class="heater-sub">Pentair / Hayward</div>
+        </div>
+        <label class="ios-switch">
+          <input type="checkbox" id="heaterToggle" onchange="onHeaterToggle(this.checked)">
+          <div class="ios-switch-track"></div>
+        </label>
+      </div>
+    </div>
+
+
+    <!-- Pool Health Score Card -->
+    <div id="healthScoreCard" style="background:var(--bg2);border-radius:var(--r-xl);margin:12px 16px 0;padding:16px 18px;position:relative;overflow:hidden;">
+      <div style="display:flex;align-items:center;gap:14px;">
+        <div style="position:relative;flex-shrink:0;">
+          <svg width="36" height="36" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="40" cy="40" r="40" fill="#0A84FF"/><path d="M14 44 Q22 38 30 44 Q38 50 46 44 Q54 38 66 44" stroke="white" stroke-width="2.5" fill="none" opacity="0.5" stroke-linecap="round"/><path d="M14 52 Q22 46 30 52 Q38 58 46 52 Q54 46 66 52" stroke="white" stroke-width="2" fill="none" opacity="0.3" stroke-linecap="round"/><text x="40" y="38" text-anchor="middle" font-size="22" font-weight="700" fill="white" font-family="-apple-system,sans-serif" letter-spacing="-0.5">deb</text></svg>
+          <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:500;color:var(--label);" id="healthScoreNum">87</div>
+        </div>
+        <div style="flex:1;">
+          <div style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--label2);margin-bottom:2px;">Pool Health Score</div>
+          <div style="font-size:20px;font-weight:500;color:var(--label);" id="healthScoreLabel">Excellent</div>
+          <div style="display:flex;gap:6px;margin-top:6px;flex-wrap:wrap;" id="healthSubScores">
+            <span style="font-size:11px;padding:2px 7px;border-radius:10px;background:rgba(29,158,117,0.15);color:#0F6E56;">Chemistry 92</span>
+            <span style="font-size:11px;padding:2px 7px;border-radius:10px;background:rgba(55,138,221,0.15);color:#185FA5;">Flow 88</span>
+            <span style="font-size:11px;padding:2px 7px;border-radius:10px;background:rgba(239,159,39,0.15);color:#854F0B;">Temp 76</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section-label">Quick Controls</div>
+  <!-- ═══ DEB SUMMARY CARD ═══ -->
+  <div id="debSummaryCard" style="margin:0 16px 16px;background:linear-gradient(135deg,rgba(10,132,255,0.12),rgba(48,209,88,0.08));border:1px solid rgba(10,132,255,0.2);border-radius:18px;padding:16px;">
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">
+      <svg width="36" height="36" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="40" cy="40" r="40" fill="#0A84FF"/><path d="M14 44 Q22 38 30 44 Q38 50 46 44 Q54 38 66 44" stroke="white" stroke-width="2.5" fill="none" opacity="0.5" stroke-linecap="round"/><path d="M14 52 Q22 46 30 52 Q38 58 46 52 Q54 46 66 52" stroke="white" stroke-width="2" fill="none" opacity="0.3" stroke-linecap="round"/><text x="40" y="38" text-anchor="middle" font-size="22" font-weight="700" fill="white" font-family="-apple-system,sans-serif" letter-spacing="-0.5">deb</text></svg>
+      <div>
+        <div style="font-size:14px;font-weight:700;color:var(--teal);">Pool Girl Deb</div>
+        <div id="debWaterStatus" style="font-size:12px;color:var(--label2);">Checking water…</div>
+      </div>
+    </div>
+    <div id="debSummaryText" style="font-size:14px;color:var(--label);line-height:1.5;margin-bottom:12px;">Connecting to your pool…</div>
+    <div id="debChemRec" style="display:none;margin-bottom:12px;"></div>
+    <div style="display:flex;gap:8px;">
+      <input id="debHomeInput" placeholder="Ask Deb anything…" onkeydown="if(event.key==='Enter')debHomeAsk()" style="flex:1;background:rgba(255,255,255,0.08);border:none;border-radius:10px;padding:9px 12px;color:#fff;font-size:13px;outline:none;">
+      <button onclick="debHomeAsk()" style="background:var(--teal);border:none;border-radius:10px;padding:9px 16px;color:#000;font-weight:700;font-size:14px;cursor:pointer;">↑</button>
+    </div>
+  </div>
+
+
+
+    <!-- Pump Card — matches settings style -->
+    <div class="rpm-card" style="margin:0 16px;" onclick="">
+      <div class="rpm-header">
+        <div>
+          <div class="rpm-label">Filter Pump</div>
+          <div style="font-size:13px;color:var(--label2);margin-top:1px;" id="pumpBarStats">Tap to start</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;">
+          <div><span class="rpm-display" id="rpmDisplay">—</span><span style="font-size:11px;color:var(--label2);"> RPM</span></div>
+          <label class="ios-switch" onclick="event.stopPropagation()">
+            <input type="checkbox" id="pumpToggle" onchange="togglePump()">
+            <div class="ios-switch-track"></div>
+          </label>
+        </div>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;">
+        <span style="font-size:11px;color:var(--label3);">600</span>
+        <input type="range" min="600" max="3450" step="50" value="1900" id="rpmSliderHome" oninput="onRpmSlideHome()" style="flex:1;">
+        <span style="font-size:11px;color:var(--label3);">3450</span>
+      </div>
+      <div class="rpm-presets">
+        <button class="rpm-preset" id="rpmWhisper" onclick="setRpm(600)">Whisper<br>600</button>
+        <button class="rpm-preset" id="rpmLow" onclick="setRpm(1200)">Low<br>1200</button>
+        <button class="rpm-preset active" id="rpmMid" onclick="setRpm(1900)">Normal<br>1900</button>
+        <button class="rpm-preset" id="rpmHigh" onclick="setRpm(2700)">High<br>2700</button>
+        <button class="rpm-preset" id="rpmMax" onclick="setRpm(3450)">Max<br>3450</button>
+      </div>
+    </div>
+
+    <!-- 3 Controls -->
+    <div class="three-grid" style="margin-top:10px;">
+      <div class="q-card" id="lightsQCard" onclick="showTab('lights')">
+        <svg class="q-icon-svg" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21h6M12 3a6 6 0 016 6c0 2.5-1.5 4.5-3 6H9c-1.5-1.5-3-3.5-3-6a6 6 0 016-6z"/><line x1="9" y1="17" x2="15" y2="17"/></svg>
+        <div class="q-name">Lights</div>
+        <div class="q-state" id="lightsQState">Off</div>
+      </div>
+      <div class="q-card" id="jetsQCard" onclick="toggleCircuit(502,'jetsQCard','Deck Jets')">
+        <svg class="q-icon-svg" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M3 12h2M19 12h2M12 3v2M12 19v2"/>
+          <path d="M5.6 5.6l1.4 1.4M16.9 16.9l1.4 1.4M5.6 18.4l1.4-1.4M16.9 7.1l1.4-1.4"/>
+          <circle cx="12" cy="12" r="3"/>
+          <path d="M12 9V5M9 12H5M15 12h4M12 15v4"/>
+        </svg>
+        <div class="q-name">Deck Jets</div>
+        <div class="q-state" id="jetsQState">Off</div>
+      </div>
+      <div class="q-card" id="fountainsQCard" onclick="toggleCircuit(510,'fountainsQCard','Fountains')">
+        <svg class="q-icon-svg" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 21V13"/>
+          <path d="M8 9c0-2.2 1.8-4 4-4s4 1.8 4 4"/>
+          <path d="M6 13c0-3.3 2.7-6 6-6s6 2.7 6 6"/>
+          <path d="M4 21h16"/>
+          <path d="M9 13c.5-1.5 1.5-2.5 3-3"/>
+          <path d="M15 13c-.5-1.5-1.5-2.5-3-3"/>
+        </svg>
+        <div class="q-name">Fountains</div>
+        <div class="q-state" id="fountainsQState">Off</div>
+      </div>
+    </div>
+
+  </div><!-- /tab-home -->
+
+  <!-- ═══ TAB: LIGHTS ═══ -->
+  <div class="tab-content" id="tab-lights">
+
+    <div class="section-label" style="padding-top:8px;">Color &amp; Brightness</div>
+    <div class="lights-card">
+      <div class="lights-header">
+        <div>
+          <div style="font-size:13px;color:var(--label2);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:2px;">Pool Lights</div>
+          <div class="lights-title" id="colorName">Off</div>
+        </div>
+        <button id="lightsOffBtn" onclick="setColor('off','','Off')" style="display:none;background:rgba(255,69,58,0.15);color:#FF453A;border:none;border-radius:10px;padding:8px 16px;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;">Turn Off</button>
+      </div>
+      <div class="color-preview" id="colorPreview"></div>
+      <div class="swatches">
+        <div class="swatch swatch-off selected" onclick="setColor('off','','Off')" id="swatch-off"></div>
+        <div class="swatch swatch-white" onclick="setColor('white','#fff','White')" id="swatch-white"></div>
+        <div class="swatch swatch-blue" onclick="setColor('blue','#0A84FF','Blue')" id="swatch-blue"></div>
+        <div class="swatch swatch-teal" onclick="setColor('teal','#5AC8FA','Teal')" id="swatch-teal"></div>
+        <div class="swatch swatch-purple" onclick="setColor('purple','#BF5AF2','Purple')" id="swatch-purple"></div>
+        <div class="swatch swatch-red" onclick="setColor('red','#FF453A','Red')" id="swatch-red"></div>
+        <div class="swatch swatch-green" onclick="setColor('green','#30D158','Green')" id="swatch-green"></div>
+        <div class="swatch swatch-party" onclick="setColor('party','party','Party')" id="swatch-party"></div>
+      </div>
+    </div>
+
+    <div class="section-label">Scenes</div>
+    <div class="scenes-grid">
+      <div class="scene-card scene-caribbean" onclick="setScene('caribbean')" id="scene-caribbean"><div class="scene-icon">🌊</div><div class="scene-name">Caribbean</div><div class="scene-desc">Cool tropical blue</div></div>
+      <div class="scene-card scene-party" onclick="setScene('party')" id="scene-party"><div class="scene-icon">🎉</div><div class="scene-name">Party</div><div class="scene-desc">Color changing fun</div></div>
+      <div class="scene-card scene-sunset" onclick="setScene('sunset')" id="scene-sunset"><div class="scene-icon">🌅</div><div class="scene-name">Sunset</div><div class="scene-desc">Warm amber glow</div></div>
+      <div class="scene-card scene-romance" onclick="setScene('romance')" id="scene-romance"><div class="scene-icon">💗</div><div class="scene-name">Romance</div><div class="scene-desc">Soft pink & purple</div></div>
+      <div class="scene-card scene-royal" onclick="setScene('royal')" id="scene-royal"><div class="scene-icon">👑</div><div class="scene-name">Royal</div><div class="scene-desc">Deep royal blue</div></div>
+      <div class="scene-card scene-white" onclick="setScene('white')" id="scene-white"><div class="scene-icon">⚪</div><div class="scene-name">Bright White</div><div class="scene-desc">Full brightness</div></div>
+    </div>
+
+  </div><!-- /tab-lights -->
+
+  <!-- ═══ TAB: CHEM ═══ -->
+  <div class="tab-content" id="tab-chem">
+
+    <!-- ── Sensor setup (hidden once connected) ── -->
+    <div class="tuya-setup" id="tuyaSetup">
+      <h3>Connect Pool Buddy Sensor</h3>
+      <p>Link your YINMIK sensor for live chemistry readings.</p>
+      <div class="tuya-field"><label>Access ID</label><input type="text" id="tuyaAccessId" placeholder="Tuya Access ID"></div>
+      <div class="tuya-field"><label>Secret</label><input type="password" id="tuyaSecret" placeholder="Tuya Secret"></div>
+      <div class="tuya-field"><label>Device ID</label><input type="text" id="tuyaDeviceId" placeholder="YINMIK Device ID"></div>
+      <div class="tuya-field"><label>Region</label>
+        <select id="tuyaRegion"><option value="us">US</option><option value="eu">EU</option><option value="cn">CN</option><option value="in">IN</option></select>
+      </div>
+      <button class="btn-primary" onclick="tuyaConnect()">Connect Sensor</button>
+    </div>
+
+    <!-- ── Live chemistry panel ── -->
+    <div id="tuyaLivePanel" style="display:none;">
+
+      <!-- Water Status Card — like a dashboard warning light -->
+      <div id="waterSafetyCard" style="margin:0 16px 14px;background:var(--bg2);border-radius:20px;overflow:hidden;box-shadow:0 4px 20px rgba(0,0,0,0.3);">
+        <!-- Status strip — full width color bar at top -->
+        <div id="statusStrip" style="height:5px;background:var(--green);transition:background .4s;"></div>
+        <div style="padding:18px 20px 16px;">
+          <!-- Main status -->
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+            <div>
+              <div style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.1em;color:var(--label3);margin-bottom:5px;">Pool Status</div>
+              <div id="safetyLabel" style="font-size:26px;font-weight:700;color:var(--green);line-height:1;">All good</div>
+              <div id="safetySubLabel" style="font-size:13px;color:var(--label3);margin-top:3px;">Safe to swim</div>
+            </div>
+            <!-- Traffic light indicator -->
+            <div id="safetyScore" style="width:56px;height:56px;border-radius:50%;background:rgba(48,214,180,0.15);border:2.5px solid var(--green);display:flex;align-items:center;justify-content:center;font-size:24px;flex-shrink:0;">✓</div>
+          </div>
+          <!-- Alert message — only shown when something needs attention -->
+          <div id="safetyAlert" style="display:none;background:rgba(255,159,10,0.08);border:1px solid rgba(255,159,10,0.25);border-radius:12px;padding:12px 14px;margin-bottom:14px;">
+            <div id="safetyAlertText" style="font-size:14px;color:#ff9f0a;font-weight:500;line-height:1.4;"></div>
+          </div>
+          <!-- 3 key metrics inline — the dashboard gauges -->
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:14px;">
+            <div id="metricPH" style="background:var(--bg3);border-radius:12px;padding:10px;text-align:center;">
+              <div style="font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--label3);margin-bottom:4px;">pH</div>
+              <div id="metricPHVal" style="font-size:22px;font-weight:700;color:var(--green);line-height:1;">--</div>
+              <div id="metricPHStatus" style="font-size:10px;color:var(--green);margin-top:3px;">Good</div>
+            </div>
+            <div id="metricCL" style="background:var(--bg3);border-radius:12px;padding:10px;text-align:center;">
+              <div style="font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--label3);margin-bottom:4px;">Chlorine</div>
+              <div id="metricCLVal" style="font-size:22px;font-weight:700;color:var(--green);line-height:1;">--</div>
+              <div id="metricCLStatus" style="font-size:10px;color:var(--green);margin-top:3px;">ppm</div>
+            </div>
+            <div id="metricORP" style="background:var(--bg3);border-radius:12px;padding:10px;text-align:center;">
+              <div style="font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--label3);margin-bottom:4px;">Sanitizer</div>
+              <div id="metricORPVal" style="font-size:22px;font-weight:700;color:var(--green);line-height:1;">--</div>
+              <div id="metricORPStatus" style="font-size:10px;color:var(--green);margin-top:3px;">mV</div>
+            </div>
+          </div>
+          <!-- Live + temp row -->
+          <div style="display:flex;align-items:center;gap:8px;">
+            <div class="live-dot" id="liveDot"><span class="dot-circle"></span></div>
+            <span id="liveStatus" style="font-size:12px;color:var(--label3);">Live</span>
+            <span id="metricTemp" style="font-size:12px;color:var(--label2);margin-left:4px;"></span>
+            <span style="font-size:12px;color:var(--label4);margin-left:auto;" id="sensorLastUpdate"></span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Detail cards -->
+      <div style="padding:0 16px 4px;margin-bottom:4px;">
+        <span style="font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.08em;color:var(--label3);">Sensor readings</span>
+      </div>
+      <div class="chem-grid" id="chemGrid"></div>
+
+      <!-- Service interval reminder — like an oil change light -->
+      <div id="serviceReminderCard" style="margin:4px 16px 24px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:16px;padding:16px;">
+        <div style="display:flex;align-items:center;gap:12px;">
+          <div id="serviceLight" style="width:36px;height:36px;border-radius:10px;background:rgba(48,214,180,0.1);border:1.5px solid rgba(48,214,180,0.3);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;">🧪</div>
+          <div style="flex:1;">
+            <div style="font-size:14px;font-weight:600;color:var(--label);" id="serviceTitle">Test water at your pool store</div>
+            <div style="font-size:12px;color:var(--label3);margin-top:2px;line-height:1.4;" id="serviceDesc">Monthly store test checks CYA, alkalinity &amp; hardness — things the sensor can't see.</div>
+          </div>
+        </div>
+        <div id="lastTestRow" style="display:flex;align-items:center;justify-content:space-between;margin-top:12px;padding-top:12px;border-top:1px solid rgba(255,255,255,0.06);">
+          <span style="font-size:12px;color:var(--label3);" id="lastTestText">No test on record</span>
+          <button onclick="logTestDone()" style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);border-radius:8px;padding:5px 12px;color:var(--label2);font-size:12px;cursor:pointer;">Mark as done</button>
+        </div>
+      </div>
+
+    </div><!-- /tuyaLivePanel -->
+
+  </div><!-- /tab-chem -->
+
+  <!-- ═══ TAB: SHOP ═══ -->
+  <div class="tab-content" id="tab-shop">
+
+    <!-- ORDER SUMMARY BAR — always at top, collapses when empty -->
+    <div id="shopOrderBar" style="display:none;margin:12px 16px 0;background:var(--bg2);border-radius:14px;overflow:hidden;">
+      <div onclick="toggleOrderExpand()" style="display:flex;justify-content:space-between;align-items:center;padding:14px 16px;cursor:pointer;">
+        <div style="display:flex;align-items:center;gap:10px;">
+          <div style="width:24px;height:24px;background:var(--teal);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#000;" id="shopCartCount">0</div>
+          <div style="font-size:14px;font-weight:600;">Your order</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:12px;">
+          <div style="font-size:16px;font-weight:700;color:var(--teal);" id="shopCartTotal">$0.00</div>
+          <div style="font-size:12px;color:var(--label2);" id="shopOrderChevron">▲</div>
+        </div>
+      </div>
+      <div id="shopOrderDetails" style="border-top:1px solid var(--sep);padding:0 16px 12px;">
+        <div id="shopCartItems" style="padding-top:10px;"></div>
+        <div style="display:flex;justify-content:space-between;align-items:center;padding-top:10px;border-top:1px solid var(--sep);margin-top:4px;">
+          <div>
+            <div style="font-size:12px;color:var(--label2);">Delivery to Carmel, IN</div>
+            <div style="font-size:11px;color:var(--teal);margin-top:2px;">Free delivery · 1-2 days</div>
+          </div>
+          <button onclick="checkout()" style="background:var(--teal);border:none;border-radius:12px;padding:10px 20px;color:#000;font-size:14px;font-weight:700;cursor:pointer;">Pay $<span id="shopPayTotal">0.00</span></button>
+        </div>
+      </div>
+    </div>
+
+    <!-- SECTION LABEL -->
+    <div class="section-label" style="padding-top:16px;">Pool Boy Delivery</div>
+    <p style="font-size:13px;color:var(--label2);padding:0 16px 12px;line-height:1.5;">Pool chemicals, delivered to your door. Deb monitors your pool and tells you what you need.</p>
+
+    <!-- CATALOGUE — Deb-recommended items highlighted -->
+    <div style="padding:0 16px;display:flex;flex-direction:column;gap:10px;" id="shopProducts">
+
+      <div class="shop-product-card" id="shop-item-chlorine" onclick="addToCart('chlorine-tablets', 'Chlorine Tablets 10lb', 24.99)">
+        <div class="shop-product-icon">🧪</div>
+        <div class="shop-product-info">
+          <div style="display:flex;align-items:center;gap:6px;">
+            <div class="shop-product-name">Chlorine Tablets 10lb</div>
+            <div id="shop-deb-badge-chlorine" style="display:none;font-size:10px;font-weight:700;background:var(--teal);color:#000;padding:2px 7px;border-radius:10px;">Deb</div>
+          </div>
+          <div class="shop-product-desc">3-inch stabilized trichlor · lasts ~4 weeks</div>
+          <div id="shop-deb-reason-chlorine" style="display:none;font-size:11px;color:var(--teal);margin-top:3px;"></div>
+        </div>
+        <div class="shop-product-price">$24.99</div>
+      </div>
+
+      <div class="shop-product-card" id="shop-item-shock" onclick="addToCart('shock-treatment', 'Shock Treatment 1lb', 8.99)">
+        <div class="shop-product-icon">⚡</div>
+        <div class="shop-product-info">
+          <div style="display:flex;align-items:center;gap:6px;">
+            <div class="shop-product-name">Shock Treatment 1lb</div>
+            <div id="shop-deb-badge-shock" style="display:none;font-size:10px;font-weight:700;background:var(--teal);color:#000;padding:2px 7px;border-radius:10px;">Deb</div>
+          </div>
+          <div class="shop-product-desc">Cal-hypo shock · treats 10,000 gal</div>
+          <div id="shop-deb-reason-shock" style="display:none;font-size:11px;color:var(--teal);margin-top:3px;"></div>
+        </div>
+        <div class="shop-product-price">$8.99</div>
+      </div>
+
+      <div class="shop-product-card" id="shop-item-ph_up" onclick="addToCart('ph-up', 'pH Up 5lb', 14.99)">
+        <div class="shop-product-icon">📈</div>
+        <div class="shop-product-info">
+          <div style="display:flex;align-items:center;gap:6px;">
+            <div class="shop-product-name">pH Up 5lb</div>
+            <div id="shop-deb-badge-ph_up" style="display:none;font-size:10px;font-weight:700;background:var(--teal);color:#000;padding:2px 7px;border-radius:10px;">Deb</div>
+          </div>
+          <div class="shop-product-desc">Sodium carbonate · raises pH safely</div>
+          <div id="shop-deb-reason-ph_up" style="display:none;font-size:11px;color:var(--teal);margin-top:3px;"></div>
+        </div>
+        <div class="shop-product-price">$14.99</div>
+      </div>
+
+      <div class="shop-product-card" id="shop-item-ph_down" onclick="addToCart('ph-down', 'pH Down 5lb', 12.99)">
+        <div class="shop-product-icon">📉</div>
+        <div class="shop-product-info">
+          <div style="display:flex;align-items:center;gap:6px;">
+            <div class="shop-product-name">pH Down 5lb</div>
+            <div id="shop-deb-badge-ph_down" style="display:none;font-size:10px;font-weight:700;background:var(--teal);color:#000;padding:2px 7px;border-radius:10px;">Deb</div>
+          </div>
+          <div class="shop-product-desc">Sodium bisulfate · lowers pH</div>
+          <div id="shop-deb-reason-ph_down" style="display:none;font-size:11px;color:var(--teal);margin-top:3px;"></div>
+        </div>
+        <div class="shop-product-price">$12.99</div>
+      </div>
+
+      <div class="shop-product-card" id="shop-item-algaecide" onclick="addToCart('algaecide', 'Algaecide 32oz', 19.99)">
+        <div class="shop-product-icon">🌿</div>
+        <div class="shop-product-info">
+          <div style="display:flex;align-items:center;gap:6px;">
+            <div class="shop-product-name">Algaecide 32oz</div>
+            <div id="shop-deb-badge-algaecide" style="display:none;font-size:10px;font-weight:700;background:var(--teal);color:#000;padding:2px 7px;border-radius:10px;">Deb</div>
+          </div>
+          <div class="shop-product-desc">60% poly quat · non-foaming</div>
+          <div id="shop-deb-reason-algaecide" style="display:none;font-size:11px;color:var(--teal);margin-top:3px;"></div>
+        </div>
+        <div class="shop-product-price">$19.99</div>
+      </div>
+
+      <div class="shop-product-card" id="shop-item-stabilizer" onclick="addToCart('stabilizer', 'Stabilizer 4lb', 16.99)">
+        <div class="shop-product-icon">🛡️</div>
+        <div class="shop-product-info">
+          <div style="display:flex;align-items:center;gap:6px;">
+            <div class="shop-product-name">Stabilizer 4lb</div>
+            <div id="shop-deb-badge-stabilizer" style="display:none;font-size:10px;font-weight:700;background:var(--teal);color:#000;padding:2px 7px;border-radius:10px;">Deb</div>
+          </div>
+          <div class="shop-product-desc">Cyanuric acid · protects chlorine from sun</div>
+          <div id="shop-deb-reason-stabilizer" style="display:none;font-size:11px;color:var(--teal);margin-top:3px;"></div>
+        </div>
+        <div class="shop-product-price">$16.99</div>
+      </div>
+
+      <div class="shop-product-card" id="shop-item-salt" onclick="addToCart('pool-salt', 'Pool Salt 40lb', 8.99)">
+        <div class="shop-product-icon">🧂</div>
+        <div class="shop-product-info">
+          <div style="display:flex;align-items:center;gap:6px;">
+            <div class="shop-product-name">Pool Salt 40lb</div>
+            <div id="shop-deb-badge-salt" style="display:none;font-size:10px;font-weight:700;background:var(--teal);color:#000;padding:2px 7px;border-radius:10px;">Deb</div>
+          </div>
+          <div class="shop-product-desc">Solar salt · for saltwater systems</div>
+          <div id="shop-deb-reason-salt" style="display:none;font-size:11px;color:var(--teal);margin-top:3px;"></div>
+        </div>
+        <div class="shop-product-price">$8.99</div>
+      </div>
+
+      <div class="shop-product-card" id="shop-item-starter-kit" onclick="addToCart('starter-kit', 'Pool Starter Kit', 49.99)">
+        <div class="shop-product-icon">🎁</div>
+        <div class="shop-product-info">
+          <div style="display:flex;align-items:center;gap:6px;">
+            <div class="shop-product-name">Pool Starter Kit</div>
+            <div id="shop-deb-badge-starter-kit" style="display:none;font-size:10px;font-weight:700;background:var(--teal);color:#000;padding:2px 7px;border-radius:10px;">Deb</div>
+          </div>
+          <div class="shop-product-desc">Chlorine + shock + pH kit + algaecide</div>
+          <div id="shop-deb-reason-starter-kit" style="display:none;font-size:11px;color:var(--teal);margin-top:3px;"></div>
+        </div>
+        <div class="shop-product-price">$49.99</div>
+      </div>
+
+    </div>
+
+  </div><!-- /tab-shop -->
+
+
+  <!-- ═══ TAB: SETTINGS ═══ -->
+  <div class="tab-content" id="tab-settings">
+
+    <div class="section-label">Voice Control</div>
+    <div class="settings-card">
+      <div class="settings-row">
+        <div class="settings-icon" style="background:#000;border:0.5px solid rgba(255,255,255,0.15);">
+          <svg width="18" height="18" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="white"/><path d="M7 12l3.5 3.5L17 8" stroke="#000" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+        <div class="settings-body">
+          <div class="settings-label">Siri &amp; HomeKit</div>
+          <div class="settings-sub" style="color:var(--green);">Connected · "Hey Siri, turn on pool lights"</div>
+        </div>
+      </div>
+      <div class="settings-row" id="alexaSettingsRow" onclick="openAlexaConnect()" style="cursor:pointer;">
+        <div class="settings-icon" style="background:linear-gradient(135deg,#00CAFF,#0064FF);font-size:13px;font-weight:800;color:white;display:flex;align-items:center;justify-content:center;">A</div>
+        <div class="settings-body">
+          <div class="settings-label">Amazon Alexa</div>
+          <div class="settings-sub" id="alexaStatusSub">Checking…</div>
+        </div>
+        <div style="color:rgba(255,255,255,0.3);font-size:18px;">›</div>
+      </div>
+    </div>
+
+    <div class="section-label">Appearance</div>
+    <div class="settings-card" style="margin-bottom:16px;">
+      <div class="settings-row">
+        <div class="settings-icon icon-purple">🌙</div>
+        <div class="settings-body">
+          <div class="settings-label" id="themeLabel">Dark Mode</div>
+          <div class="settings-sub">Switch between light and dark</div>
+        </div>
+        <label class="toggle">
+          <input type="checkbox" id="themeToggle" onchange="toggleTheme(this.checked)">
+          <div class="toggle-track"></div>
+        </label>
+      </div>
+    </div>
+
+
+    <div class="section-label">Schedules</div>
+    <div class="settings-card" style="margin-bottom:16px;">
+      <div id="settSchedulesList" style="padding:4px 0;">
+        <div style="padding:12px 16px;font-size:14px;color:var(--label2);">No schedules yet</div>
+      </div>
+      <div style="padding:0 16px 14px;border-top:1px solid rgba(255,255,255,0.06);margin-top:4px;">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px;">
+          <input id="sett-sched-name" placeholder="Name" style="background:rgba(255,255,255,0.08);border:none;border-radius:8px;padding:8px 10px;color:#fff;font-size:13px;outline:none;">
+          <input id="sett-sched-time" type="time" value="08:00" style="background:rgba(255,255,255,0.08);border:none;border-radius:8px;padding:8px 10px;color:#fff;font-size:13px;outline:none;">
+        </div>
+        <select id="sett-sched-scene" style="width:100%;background:rgba(30,30,30,0.9);border:none;border-radius:8px;padding:8px 10px;color:#fff;font-size:13px;margin-top:8px;outline:none;">
+          <option value="">Select scene…</option>
+          <option value="pool_party">🎉 Pool Party</option>
+          <option value="evening_swim">🌅 Evening Swim</option>
+          <option value="away">✈️ Away</option>
+          <option value="sleep">🌙 Sleep</option>
+          <option value="solar_save">☀️ Solar Save</option>
+        </select>
+        <button onclick="settSaveSchedule()" style="width:100%;background:var(--teal);border:none;border-radius:10px;padding:10px;color:#000;font-size:14px;font-weight:700;cursor:pointer;margin-top:8px;">Add schedule</button>
+      </div>
+    </div>
+
+    <div class="section-label">Energy</div>
+    <div class="settings-card" style="margin-bottom:16px;">
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:0;text-align:center;">
+        <div style="padding:14px 8px;border-right:1px solid rgba(255,255,255,0.06);">
+          <div id="sett-es-watts" style="font-size:20px;font-weight:700;">--W</div>
+          <div style="font-size:11px;color:var(--label2);margin-top:2px;">Right now</div>
+        </div>
+        <div style="padding:14px 8px;border-right:1px solid rgba(255,255,255,0.06);">
+          <div id="sett-es-kwh" style="font-size:20px;font-weight:700;">--</div>
+          <div style="font-size:11px;color:var(--label2);margin-top:2px;">kWh/day</div>
+        </div>
+        <div style="padding:14px 8px;border-right:1px solid rgba(255,255,255,0.06);">
+          <div id="sett-es-cost" style="font-size:20px;font-weight:700;">--</div>
+          <div style="font-size:11px;color:var(--label2);margin-top:2px;">$/day est.</div>
+        </div>
+        <div style="padding:14px 8px;">
+          <div id="sett-es-runtime" style="font-size:20px;font-weight:700;">--h</div>
+          <div style="font-size:11px;color:var(--label2);margin-top:2px;">Run time</div>
+        </div>
+      </div>
+      <div id="sett-history-chart" style="padding:0 14px 14px;border-top:1px solid rgba(255,255,255,0.06);margin-top:4px;min-height:40px;"></div>
+      <div id="historyChartArea" style="padding:14px;"></div>
+    </div>
+
+    <div class="section-label">Freeze protection</div>
+    <div class="settings-card" style="margin-bottom:16px;">
+      <div class="settings-row" style="padding-top:14px;padding-bottom:14px;">
+        <div class="settings-icon" style="background:rgba(10,132,255,0.2);">❄️</div>
+        <div class="settings-body">
+          <div class="settings-label">Auto freeze protection</div>
+          <div class="settings-sub" id="sett-freeze-status">Standby · activates below 35°F</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section-label">Guest Access</div>
+    <div class="settings-card" style="margin-bottom:16px;">
+      <div id="guestAccessList" style="padding:4px 0;"></div>
+      <div style="padding:10px 0 4px;">
+        <button onclick="createGuestAccess()" style="width:100%;background:rgba(48,214,180,0.1);border:1px solid rgba(48,214,180,0.3);border-radius:10px;padding:10px;color:#30d6b4;font-size:14px;font-weight:600;cursor:pointer;">+ Add guest access</button>
+      </div>
+    </div>
+
+
+
+    <div class="section-label">About</div>
+    <div class="settings-card" style="margin-bottom:16px;">
+      <div class="settings-row">
+        <div class="settings-icon icon-blue">🏊</div>
+        <div class="settings-body">
+          <div class="settings-label">Pool Boy</div>
+          <div class="settings-sub">Version 2.0 · Lewis Tech LLC · Pool Girl Deb powered by Claude</div>
+        </div>
+      </div>
+      <div class="settings-row" onclick="window.open(window.location.origin + '/dealer-dashboard.html','_blank')" style="cursor:pointer;">
+        <div class="settings-icon icon-teal">🏪</div>
+        <div class="settings-body">
+          <div class="settings-label">Dealer Dashboard</div>
+          <div class="settings-sub">Dealer dashboard — all customer pools</div>
+        </div>
+        <div style="color:rgba(255,255,255,0.3);font-size:18px;">›</div>
+      </div>
+      <div class="settings-row" onclick="document.getElementById('privacyModal').style.display='block'" style="cursor:pointer;">
+        <div class="settings-icon icon-blue">📄</div>
+        <div class="settings-body">
+          <div class="settings-label">Privacy Policy</div>
+          <div class="settings-sub">How we handle your data</div>
+        </div>
+        <div style="color:rgba(255,255,255,0.3);font-size:18px;">›</div>
+      </div>
+      <div class="settings-row" style="cursor:pointer;" onclick="resetSensor()">
+        <div class="settings-icon icon-teal">🔬</div>
+        <div class="settings-body">
+          <div class="settings-label">Reset chemistry sensor</div>
+          <div class="settings-sub">Reconnect YINMIK sensor</div>
+        </div>
+      </div>
+      <div class="settings-row" style="cursor:pointer;" onclick="resetApiKey()">
+        <div class="settings-icon icon-purple">🤖</div>
+        <div class="settings-body">
+          <div class="settings-label">Pool Girl Deb API key</div>
+          <div class="settings-sub">Reset Anthropic API key</div>
+        </div>
+      </div>
+      <div class="settings-row" onclick="if(confirm('Reset app?')){localStorage.removeItem('pool_onboarded');localStorage.removeItem('pool_demo_mode');location.reload()}" style="cursor:pointer;">
+        <div class="settings-icon icon-orange">🔄</div>
+        <div class="settings-body">
+          <div class="settings-label">Reset app</div>
+          <div class="settings-sub">Clear all settings and restart</div>
+        </div>
+        <div style="color:rgba(255,255,255,0.3);font-size:18px;">›</div>
+      </div>
+    </div>
+
+  </div><!-- /tab-settings -->
+
+</div><!-- /app -->
+
+<!-- Pool Girl Deb -->
+<div class="pb-overlay" id="pbOverlay" onclick="pbClose()"></div>
+<button class="pb-fab" onclick="pbToggle()" style="padding:0;overflow:hidden;"><svg width="64" height="64" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="40" cy="40" r="40" fill="#0A84FF"/><path d="M14 44 Q22 38 30 44 Q38 50 46 44 Q54 38 66 44" stroke="white" stroke-width="2.5" fill="none" opacity="0.5" stroke-linecap="round"/><path d="M14 52 Q22 46 30 52 Q38 58 46 52 Q54 46 66 52" stroke="white" stroke-width="2" fill="none" opacity="0.3" stroke-linecap="round"/><text x="40" y="38" text-anchor="middle" font-size="22" font-weight="700" fill="white" font-family="-apple-system,sans-serif" letter-spacing="-0.5">deb</text></svg></button>
+<div class="pb-drawer" id="pbDrawer">
+  <div class="pb-handle-row"><div class="pb-handle"></div></div>
+  <div class="pb-header">
+    <div class="pb-avatar" style="padding:0;overflow:hidden;background:transparent;"><svg width="64" height="64" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="40" cy="40" r="40" fill="#0A84FF"/><path d="M14 44 Q22 38 30 44 Q38 50 46 44 Q54 38 66 44" stroke="white" stroke-width="2.5" fill="none" opacity="0.5" stroke-linecap="round"/><path d="M14 52 Q22 46 30 52 Q38 58 46 52 Q54 46 66 52" stroke="white" stroke-width="2" fill="none" opacity="0.3" stroke-linecap="round"/><text x="40" y="38" text-anchor="middle" font-size="22" font-weight="700" fill="white" font-family="-apple-system,sans-serif" letter-spacing="-0.5">deb</text></svg></div>
+    <div><div class="pb-name">Pool Girl Deb</div><div class="pb-tagline">AI pool assistant · Powered by Claude</div></div>
+    <button class="pb-close" onclick="pbClose()">×</button>
+  </div>
+  <div class="pb-messages" id="pbMessages"></div>
+  <div class="pb-quick-wrap">
+    <button class="pb-quick" onclick="pbSend('Check my water now')">🔬 Check water</button>
+    <button class="pb-quick" onclick="pbSend('Why is my pool cloudy?')">☁️ Cloudy water</button>
+    <button class="pb-quick" onclick="pbSend('How do I raise my pH?')">⬆️ Raise pH</button>
+    <button class="pb-quick" onclick="pbSend('How much shock do I need?')">⚡ Shock dosing</button>
+  </div>
+  <div class="pb-input-row">
+    <input class="pb-input" id="pbInput" placeholder="Ask Pool Girl Deb anything…" onkeydown="if(event.key==='Enter')pbSend()">
+    <button class="pb-send" onclick="pbSend()">↑</button>
+  </div>
+</div>
+
+<!-- NAV -->
+<nav class="bottom-nav">
+  <button class="nav-item active" id="nav-home" onclick="showTab('home')">
+    <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+    <div class="nav-label">Home</div>
+  </button>
+  <button class="nav-item" id="nav-lights" onclick="showTab('lights')">
+    <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21h6M12 2a7 7 0 017 7c0 3-1.5 5-3.5 6.5H8.5C6.5 14 5 12 5 9a7 7 0 017-7z"/><line x1="9" y1="17" x2="15" y2="17"/></svg>
+    <div class="nav-label">Lights</div>
+  </button>
+  <button class="nav-item" id="nav-chem" onclick="showTab('chem')">
+    <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3h6M10 3v7l-4 7a2 2 0 001.7 3h8.6A2 2 0 0018 17l-4-7V3"/><line x1="6.5" y1="14" x2="17.5" y2="14"/></svg>
+    <div class="nav-label">Chem</div>
+  </button>
+  <button class="nav-item" id="nav-shop" onclick="showTab('shop')">
+    <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 002 1.61h9.72a2 2 0 001.95-1.57l1.65-8.43H6"/></svg>
+    <div class="nav-label">Shop</div>
+  </button>
+  <button class="nav-item" id="nav-settings" onclick="showTab('settings')">
+    <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-2 0v-.09a1.65 1.65 0 00-1-1.51 1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-2h.09A1.65 1.65 0 004.6 9 1.65 1.65 0 004.27 7.18l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 012 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 2h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
+    <div class="nav-label">Settings</div>
+  </button>
+</nav>
+<script>
+'use strict';
+// Platform detection
+const IS_IOS     = window.Capacitor && window.Capacitor.getPlatform && window.Capacitor.getPlatform() === 'ios';
+const IS_ANDROID = window.Capacitor && window.Capacitor.getPlatform && window.Capacitor.getPlatform() === 'android';
+const IS_NATIVE  = IS_IOS || IS_ANDROID;
+const IS_WEB     = !IS_NATIVE;
+
+// ═══════════════════════════════════════════════════════════════════
+// CONFIG — loaded from bridge /api/config on boot
+// All credentials and endpoints come from the Pi's config.env.
+// Nothing is hardcoded here.
+// ═══════════════════════════════════════════════════════════════════
+let _CFG = {
+  pool_name:      'My Pool',
+  supabase_url:   '',
+  supabase_key:   '',
+  bridge_url:     '',
+  tuya_access_id: '',
+  tuya_secret:    '',
+  tuya_device_id: '',
+  tuya_region:    'us',
+  features:       { lights: true, pump_rpm: true, salt: true, heat: true },
+};
+
+// Supabase shorthand — resolves after config is loaded
+function sbUrl(path) { return _CFG.supabase_url + path; }
+function sbHeaders(extra) {
+  return Object.assign({
+    'apikey':        _CFG.supabase_key,
+    'Authorization': 'Bearer ' + _CFG.supabase_key,
+    'Content-Type':  'application/json',
+  }, extra || {});
+}
+
+// Tuya shorthand
+let TUYA_ACCESS_ID  = '';
+let TUYA_SECRET     = '';
+let TUYA_DEVICE_ID  = '';
+let TUYA_REGION     = 'us';
+let TUYA_BASE       = 'https://openapi.tuyaus.com';
+const DEFAULT_ZIP   = '46032';
+
+const CHEM_ITEMS_TOP = [
+  {id:'chlorine', label:'Chlorine', icon:'💊', kw:'3 inch chlorine tablets 50lb trichlor pool'},
+  {id:'shock',    label:'Shock',    icon:'⚡', kw:'calcium hypochlorite pool shock 1lb bags'},
+  {id:'ph_up',    label:'pH Up',    icon:'⬆️', kw:'pool ph increaser sodium carbonate soda ash'},
+  {id:'ph_down',  label:'pH Down',  icon:'⬇️', kw:'pool ph decreaser sodium bisulfate dry acid'},
+  {id:'alkalinity',label:'Alkalinity',icon:'🔼',kw:'pool total alkalinity increaser sodium bicarbonate'},
+];
+const CHEM_ITEMS_MORE = [
+  {id:'stabilizer', label:'Stabilizer', icon:'🛡️', kw:'cyanuric acid pool stabilizer conditioner'},
+  {id:'algaecide',  label:'Algaecide',  icon:'🌿', kw:'pool algaecide 60 percent quaternary'},
+  {id:'salt',       label:'Pool Salt',  icon:'🧂', kw:'pool salt sodium chloride 40lb bag'},
+  {id:'clarifier',  label:'Clarifier',  icon:'💧', kw:'pool water clarifier coagulant 1 quart'},
+  {id:'test_strips',label:'Test Strips',icon:'📏', kw:'pool test strips 7 way 100 count'},
+];
+
+const SCENE_MAP = {
+  caribbean:{mode:'caribbean',color:'#00B4D8'},
+  party:    {mode:'party',    color:'party'},
+  sunset:   {mode:'sunset',   color:'#FF6B35'},
+  romance:  {mode:'romance',  color:'#FF2D55'},
+  royal:    {mode:'royal',    color:'#5E5CE6'},
+  white:    {mode:'on',       color:'#ffffff'},
+};
+
+let BRIDGE_BASE = ''; // set from /api/config on boot
+let bridgeOnline = false;
+let bridgePollTimer = null;
+let bridgeGatewayName = 'Pentair FA-C7-33';
+
+let st = {
+  pump: false, heater: false, targetTemp: 88,
+  lightColor: 'off', rpm: 0, watts: 0,
+};
+
+let tuyaToken = null;
+let tuyaConnected = false;
+let shopSelected = new Set();
+let showMoreChems = false;
+
+// ═══════════════════════════════════════════════════════════════════
+// TABS
+// ═══════════════════════════════════════════════════════════════════
+function showTab(tab) {
+  document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  const tabEl = document.getElementById('tab-' + tab);
+  const navEl = document.getElementById('nav-' + tab);
+  if (tabEl) tabEl.classList.add('active');
+  if (navEl) navEl.classList.add('active');
+  window.scrollTo({top: 0, behavior: 'smooth'});
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// CONNECTION — clean, simple, no races
+// ═══════════════════════════════════════════════════════════════════
+function setConnStatus(state, label, sub) {
+  const dot = document.getElementById('connDot');
+  const lbl = document.getElementById('connLabel');
+  if (dot) dot.style.background = state === 'ok' ? 'var(--green)' : state === 'warn' ? 'var(--amber)' : 'rgba(255,255,255,0.2)';
+  if (lbl) lbl.textContent = state === 'ok' ? 'Live' : state === 'warn' ? 'Reconnecting…' : 'Offline';
+  // Legacy support
+  const bar = document.getElementById('connBar');
+  if (!bar) return;
+  bar.className = 'conn-bar' + (state === 'ok' ? ' ok' : state === 'warn' ? ' warn' : '');
+  document.getElementById('connLabel').textContent = label;
+  document.getElementById('connSub').textContent = sub;
+  document.getElementById('connRetry').textContent = state === 'ok' ? '✓' : '↻';
+}
+
+function setBridgeOnline(name) {
+  // Sprint 4 data loads after bridge connects
+  setTimeout(() => { loadEnergyStats(); loadHistory(); checkFreezeStatus(); loadWeather(); settLoadSchedules(); settLoadEnergy(); settCheckFreeze(); }, 1000);
+  if (!bridgeOnline) {
+    bridgeOnline = true;
+    console.log('[Pool] Bridge connected:', name);
+  }
+  setConnStatus('ok', name + ' · Live', 'Direct control · ' + BRIDGE_BASE);
+}
+
+function setBridgeOffline() {
+  if (bridgeOnline) {
+    bridgeOnline = false;
+    console.log('[Pool] Bridge offline, retrying in 10s');
+  }
+  if (bridgePollTimer) {
+    clearInterval(bridgePollTimer);
+    bridgePollTimer = null;
+  }
+  setConnStatus('warn', 'Connecting…', 'Retrying in 10 seconds');
+  setTimeout(bridgeInit, 10000);
+}
+
+function showPumpAlert(title, msg) {
+  const banner = document.getElementById('pumpAlert');
+  const t = document.getElementById('pumpAlertTitle');
+  const m = document.getElementById('pumpAlertMsg');
+  if (banner) banner.style.display = '';
+  if (t) t.textContent = title;
+  if (m) m.textContent = msg;
+  // Vibrate if supported
+  if (navigator.vibrate) navigator.vibrate([200, 100, 200]);
+}
+
+function hidePumpAlert() {
+  const banner = document.getElementById('pumpAlert');
+  if (banner) banner.style.display = 'none';
+}
+
+
+  // Demo mode for App Store reviewers / offline
+  const DEMO_DATA = {
+    ok: true,
+    data: {
+      pool: { current_temp: 82, target_temp: 84, heat_mode: 0, body: 0 },
+      pumps: [{ id: 0, state: 1, rpm: 2120, watts: 425, programName: 'Filter' }],
+      circuits: [
+        { id: 505, name: 'Pool Pump', state: 1 },
+        { id: 501, name: 'Pool Light', state: 0 },
+        { id: 502, name: 'Deck Jets', state: 0 },
+        { id: 510, name: 'Fountains', state: 1 },
+      ],
+      sensor: { ph: 7.4, cl_value: 2.1, orp_value: 680, temp_current: 82, battery: 95 },
+      air_temp: 88, weather: 'Sunny', humidity: 45
+    }
+  };
+  let demoMode = false;
+
+  function enableDemoMode() {
+    demoMode = true;
+    localStorage.setItem('pool_demo_mode', '1');
+    hideOnboarding();
+    applyStatus(DEMO_DATA);
+    document.getElementById('connDot').style.background = '#FF9F0A';
+    document.querySelector('.conn-text') && (document.querySelector('.conn-text').textContent = 'Demo Mode');
+    addLog('Running in demo mode — connect your Smarter Pool kit to use live data');
+  }
+
+
+  // Push notification setup
+  async function requestPushPermission() {
+    if (!('Notification' in window)) return;
+    if (Notification.permission === 'default') {
+      const permission = await Notification.requestPermission();
+      if (permission === 'granted') {
+        addLog('Push notifications enabled — you will be alerted for pump stops and chemistry issues');
+      }
+    }
+  }
+
+  function sendPushAlert(title, body, urgent = false) {
+    if (Notification.permission === 'granted') {
+      const n = new Notification(title, {
+        body,
+        icon: '/favicon.ico',
+        badge: '/favicon.ico',
+        tag: 'smarter-pool-alert',
+        requireInteraction: urgent
+      });
+      n.onclick = () => { window.focus(); n.close(); };
+    }
+  }
+
+  // Chemistry alert thresholds
+  const CHEM_THRESHOLDS = {
+    ph: { min: 7.2, max: 7.8, label: 'pH' },
+    cl: { min: 1.0, max: 3.0, label: 'Chlorine' },
+    orp: { min: 600, max: 800, label: 'ORP' },
+  };
+
+  function checkChemAlerts(data) {
+    if (!data?.sensor) return;
+    const { ph, cl_value, orp_value } = data.sensor;
+    if (ph && (ph < CHEM_THRESHOLDS.ph.min || ph > CHEM_THRESHOLDS.ph.max)) {
+      sendPushAlert('⚠️ pH Out of Range', `pH is ${ph.toFixed(1)} — target 7.2-7.8`, true);
+    }
+    if (cl_value && (cl_value < CHEM_THRESHOLDS.cl.min || cl_value > CHEM_THRESHOLDS.cl.max)) {
+      sendPushAlert('⚠️ Chlorine Out of Range', `Chlorine is ${cl_value.toFixed(1)} ppm — target 1-3 ppm`, true);
+    }
+  }
+
+
+  // Onboarding
+  let obPage = 0;
+  function obNext() {
+    obPage++;
+    document.querySelectorAll('.onboarding-page').forEach((p, i) => {
+      p.classList.toggle('active', i === obPage);
+    });
+    document.querySelectorAll('.onboarding-dot').forEach((d, i) => {
+      d.classList.toggle('active', i === obPage);
+    });
+  }
+
+  async function scanForController() {
+    const btn = document.getElementById('ob-scan-btn');
+    const status = document.getElementById('ob-scan-status');
+    if (btn) { btn.textContent = 'Scanning...'; btn.disabled = true; }
+    if (status) status.textContent = 'Looking for your Smarter Pool controller...';
+
+    // Get local subnet from a known IP or try common ranges
+    const subnet = await getSubnet();
+    const targets = [];
+    for (let i = 1; i <= 254; i++) targets.push(`${subnet}.${i}`);
+
+    // Scan in batches of 20
+    const batchSize = 20;
+    for (let i = 0; i < targets.length; i += batchSize) {
+      const batch = targets.slice(i, i + batchSize);
+      const results = await Promise.allSettled(
+        batch.map(ip => 
+          fetch(`http://${ip}:8080/api/ping`, { signal: AbortSignal.timeout(800) })
+            .then(r => r.json())
+            .then(d => d.ok ? ip : null)
+            .catch(() => null)
+        )
+      );
+      const found = results.find(r => r.status === 'fulfilled' && r.value);
+      if (found) {
+        const ip = found.value;
+        if (status) status.textContent = `Found controller at ${ip}!`;
+        document.getElementById('ob-ip').value = ip;
+        try { localStorage.setItem('pool_bridge_ip', ip); } catch(e) {}
+        if (btn) { btn.textContent = 'Scan network'; btn.disabled = false; }
+        return;
+      }
+      if (status) status.textContent = `Scanning... ${Math.min(i + batchSize, 254)}/254`;
+    }
+
+    if (status) status.textContent = 'Not found — enter IP manually below';
+    if (btn) { btn.textContent = 'Scan again'; btn.disabled = false; }
+  }
+
+  async function getSubnet() {
+    // Try common home network subnets
+    const subnets = ['192.168.1', '192.168.0', '10.0.0', '10.0.1', '172.16.0'];
+    for (const subnet of subnets) {
+      try {
+        const r = await fetch(`http://${subnet}.1/`, { signal: AbortSignal.timeout(300) });
+        return subnet;
+      } catch(e) {}
+    }
+    return '192.168.1';
+  }
+
+  function obConnect() {
+    const ip = document.getElementById('ob-ip').value.trim();
+    if (!ip) { 
+      document.getElementById('ob-scan-status').textContent = 'Please enter your controller IP or tap Scan';
+      return; 
+    }
+    try { localStorage.setItem('pool_bridge_ip', ip); } catch(e) {}
+    hideOnboarding();
+    requestPushPermission();
+  }
+
+  function hideOnboarding() {
+    const ob = document.getElementById('onboarding');
+    if (ob) {
+      ob.style.opacity = '0';
+      ob.style.transition = 'opacity 0.4s';
+      setTimeout(() => ob.style.display = 'none', 400);
+    }
+    try { localStorage.setItem('pool_onboarded', '1'); } catch(e) {}
+  }
+
+  function checkOnboarding() {
+    // Onboarding is hidden by default in CSS.
+    // Only show it if: bridge unreachable AND not previously onboarded.
+    try {
+      const params = new URLSearchParams(window.location.search);
+      if (params.get('skip') || params.get('demo') || params.get('agent')) {
+        if (params.get('demo')) enableDemoMode();
+        return; // stay hidden
+      }
+      const onboarded = localStorage.getItem('pool_onboarded');
+      const demo = localStorage.getItem('pool_demo_mode');
+      if (onboarded || demo) {
+        if (demo) enableDemoMode();
+        return; // stay hidden
+      }
+      // Try to reach bridge - if reachable, mark onboarded and stay hidden
+      fetch(BRIDGE_BASE + '/api/ping', { signal: AbortSignal.timeout(4000) })
+        .then(r => {
+          if (r.ok) {
+            try { localStorage.setItem('pool_onboarded', '1'); } catch(e) {}
+            // Stay hidden - bridge is up, we're good
+          } else {
+            document.getElementById('onboarding').style.display = 'flex';
+          }
+        })
+        .catch(() => {
+          // Bridge not reachable - show onboarding
+          document.getElementById('onboarding').style.display = 'flex';
+        });
+    } catch(e) {
+      // On any error, stay hidden and let the app run
+    }
+  }
+
+  function checkConnection() {
+  if (bridgeOnline) {
+    setConnStatus('ok', bridgeGatewayName + ' · Live', 'Direct control · ' + BRIDGE_BASE);
+  } else {
+    bridgeInit();
+  }
+}
+
+async function bridgeInit() {
+  if (bridgePollTimer) return; // already running
+  // BRIDGE_BASE set dynamically in bootApp()
+  try {
+    const r = await fetch(BRIDGE_BASE + '/api/ping', {signal: AbortSignal.timeout(5000)});
+    const d = await r.json();
+    if (d && d.ok) {
+      bridgeGatewayName = (d.data && d.data.gateway) || 'Pentair FA-C7-33';
+      await bridgePollStatus();
+      bridgePollTimer = setInterval(bridgePollStatus, 5000);
+    } else {
+      setBridgeOffline();
+    }
+  } catch(e) {
+    console.log('[Pool] bridgeInit error:', e.message);
+    setBridgeOffline();
+  }
+}
+
+async function bridgeFetch(path, opts) {
+  if (!BRIDGE_BASE) return null;
+  try {
+    const r = await fetch(BRIDGE_BASE + path, Object.assign({
+      signal: AbortSignal.timeout(6000),
+      headers: {'Content-Type': 'application/json'}
+    }, opts || {}));
+    const d = await r.json();
+    return d && d.ok ? d.data : null;
+  } catch(e) {
+    return null;
+  }
+}
+
+async function bridgePost(path, body) {
+  return bridgeFetch(path, {method: 'POST', body: JSON.stringify(body)});
+}
+
+async function bridgePollStatus() {
+  const data = await bridgeFetch('/api/status');
+  if (!data) {
+    setBridgeOffline();
+    return;
+  }
+  setBridgeOnline(bridgeGatewayName);
+  window._lastRawStatus = data; // store raw for health score and Deb
+  updateHealthScore(data);
+  applyStatus(data);
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// POOL STATUS — apply live data to UI
+// ═══════════════════════════════════════════════════════════════════
+function applyStatus(data) {
+  // Bridge returns flat structure — normalise to what applyStatus expects
+  if (!data.pool && (data.pool_temp != null || data.pump_on != null)) {
+    data = {
+      pool: {
+        current_temp: data.pool_temp,
+        target_temp:  data.target_temp,
+        heat_mode:    data.heat_mode,
+        heat_active:  data.heat_active,
+      },
+      circuits: data.circuits || {},
+      pumps: data.pump_on != null ? [{ 
+        state: data.pump_on ? 1 : 0, 
+        rpm: data.pump_rpm || 0, 
+        watts: data.pump_watts || 0 
+      }] : [],
+      sensor: data.sensor || {},
+      salt_ppm: data.salt_ppm,
+      air_temp: data.air_temp,
+    };
+  }
+  // Update Deb summary card
+  window._lastSensor = data.sensor || {};
+  if (data.sensor && Object.keys(data.sensor).length > 0) {
+    showSensorLive(data.sensor); // single source of truth — bridge normalizes
+  }
+  // Build Deb's system prompt with live data
+  var _s = window._lastSensor;
+  window._debSystemPrompt = 'You are Pool Girl Deb, a friendly pool expert. Be concise - 1-2 sentences max. ' +
+    'Pool: ' + (data.pool_temp || '?') + 'F, target ' + (data.target_temp || '?') + 'F, pump ' + (data.pump_on ? 'on' : 'off') + '. ' +
+    (_s.ph ? 'pH ' + _s.ph + ', chlorine ' + (_s.cl_value || '?') + ' ppm. ' : '') +
+    'Health score: ' + (document.getElementById('healthScoreNum') ? document.getElementById('healthScoreNum').textContent : '?') + '/100.';
+  setTimeout(() => updateDebSummary(data.pool, data.sensor || {}), 100);
+  setTimeout(debChemRecommend, 200);
+  setTimeout(updateShopDebHighlights, 250);
+  const prevPumpState = st.pump;
+  const pool = data.pool || {};
+  // circuits from bridge is an object {id: {name,state}} — convert to array
+  const circuitsRaw = data.circuits || {};
+  const circuits = Array.isArray(circuitsRaw) ? circuitsRaw :
+    Object.entries(circuitsRaw).map(([id, c]) => Object.assign({id: parseInt(id) || id}, c));
+  const pumps = data.pumps || [];
+
+  // Temperature
+  if (pool.current_temp != null) {
+    const t = pool.current_temp;
+    const el = document.getElementById('tempBig');
+    if (el) { el.textContent = t; el.className = 'temp-number' + (t >= 88 ? ' heating' : ' cool'); }
+    const strip = document.getElementById('poolTempStrip');
+    if (strip) strip.textContent = t + '°';
+  }
+
+  // Target temp
+  if (pool.target_temp != null) {
+    st.targetTemp = pool.target_temp;
+    const el = document.getElementById('tempTarget');
+    if (el) el.textContent = 'Target ' + pool.target_temp + '°F';
+    const slider = document.getElementById('targetSlider');
+    if (slider) slider.value = pool.target_temp;
+    const sv = document.getElementById('sliderVal');
+    if (sv) sv.textContent = pool.target_temp + '°';
+  }
+
+  // Heater — show ON only when actively heating (pool temp below target)
+  const heaterActive = pool.heat_active === true;
+  st.heater = heaterActive;
+  const toggle = document.getElementById('heaterToggle');
+  if (toggle) toggle.checked = heaterActive;
+  const badge = document.getElementById('heatBadge');
+  if (badge) {
+    badge.textContent = heaterActive ? 'Heating' : 'Heater Off';
+    badge.className   = 'temp-badge ' + (heaterActive ? 'badge-heating' : 'badge-off');
+  }
+  const tempEl = document.getElementById('tempBig');
+  if (tempEl) {
+    tempEl.className = 'temp-number' + (heaterActive ? ' heating' : ' cool');
+  }
+
+  // Pump — handle both Pentair native (p.id=0) and normalised flat response
+  // Also update directly from raw pump_on if pumps array is empty
+  if (!pumps.length && data.pump_on != null) {
+    const on = data.pump_on;
+    st.pump = on;
+    st.rpm  = data.pump_rpm || 0;
+    st.watts= data.pump_watts || 0;
+    const pStats = document.getElementById('pumpBarStats');
+    if (pStats) pStats.textContent = (on && st.rpm > 0) ? st.rpm.toLocaleString() + ' RPM · ' + st.watts + 'W' : (on ? 'Running' : 'Off');
+    const rpmDisp = document.getElementById('rpmDisplay');
+    if (rpmDisp) rpmDisp.textContent = st.rpm > 0 ? st.rpm.toLocaleString() : '—';
+    const homeSlider = document.getElementById('rpmSliderHome');
+    if (homeSlider && st.rpm > 0) homeSlider.value = st.rpm;
+    const pumpToggle = document.getElementById('pumpToggle');
+    if (pumpToggle) pumpToggle.checked = on;
+    if (!on) hidePumpAlert();
+  }
+  pumps.forEach(function(p) {
+    if (p.id != null && p.id !== 0) return;
+    const on = p.state === 1;
+    st.pump = on;
+    st.rpm = p.rpm;
+    st.watts = p.watts;
+    const pStats = document.getElementById('pumpBarStats');
+    // Detect unexpected pump stop
+    if (prevPumpState === true && !on) {
+      showPumpAlert('Filter Pump Stopped', 'Your pump stopped unexpectedly. Check for errors or tap Restart.');
+      sendPushAlert('🚨 Pool Pump Stopped', 'Your filter pump has stopped unexpectedly. Tap to restart.', true);
+    } else if (on) {
+      hidePumpAlert();
+    }
+    if (pStats) pStats.textContent = (on && p.rpm > 0) ? p.rpm.toLocaleString() + ' RPM · ' + p.watts + 'W' : (on ? 'Running' : 'Tap to start');
+    const rpmDisp = document.getElementById('rpmDisplay');
+    if (rpmDisp && p.rpm > 0) rpmDisp.textContent = p.rpm.toLocaleString();
+    const homeSlider = document.getElementById('rpmSliderHome');
+    if (homeSlider && p.rpm > 0) homeSlider.value = p.rpm;
+    const pumpToggle = document.getElementById('pumpToggle');
+    if (pumpToggle) pumpToggle.checked = on;
+  });
+
+  // Circuits
+  circuits.forEach(function(c) {
+    const on = c.state === 1;
+    if (c.id === 505) { // Pool pump circuit
+      st.pump = on;
+    }
+    if (c.id === 501) { // Pool Light
+      const qc = document.getElementById('lightsQCard');
+      const qs = document.getElementById('lightsQState');
+      if (qc) qc.className = 'q-card' + (on ? ' active' : '');
+      if (qs) qs.textContent = on ? 'On' : 'Off';
+      // Sync lights tab
+      const cn = document.getElementById('colorName');
+      const offBtn = document.getElementById('lightsOffBtn');
+      if (!on) {
+        if (cn) cn.textContent = 'Off';
+        if (offBtn) offBtn.style.display = 'none';
+        st.lightColor = 'off';
+        document.querySelectorAll('.swatch').forEach(s => s.classList.remove('selected'));
+        const sw = document.getElementById('swatch-off');
+        if (sw) sw.classList.add('selected');
+      } else {
+        if (offBtn) offBtn.style.display = '';
+        if (st.lightColor === 'off') {
+          if (cn) cn.textContent = 'On';
+          st.lightColor = 'on';
+        }
+      }
+    }
+    if (c.id === 502) { // Deck Jets
+      const qc = document.getElementById('jetsQCard');
+      const qs = document.getElementById('jetsQState');
+      if (qc) qc.className = 'q-card' + (on ? ' active' : '');
+      if (qs) qs.textContent = on ? 'On' : 'Off';
+    }
+    if (c.id === 510) { // Fountains
+      const qc = document.getElementById('fountainsQCard');
+      const qs = document.getElementById('fountainsQState');
+      if (qc) qc.className = 'q-card' + (on ? ' active' : '');
+      if (qs) qs.textContent = on ? 'On' : 'Off';
+    }
+  });
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// CONTROLS
+// ═══════════════════════════════════════════════════════════════════
+async function togglePump() {
+  const checkbox = document.getElementById('pumpToggle');
+  const newState = st.pump ? 0 : 1;
+  if (st.pump) {
+    if (!confirm('⚠️ STOP THE FILTER PUMP?\n\nStopping the pump will:\n• Halt water circulation\n• Risk algae growth\n• May affect heating\n\nAre you sure?')) {
+      if (checkbox) checkbox.checked = true;
+      return;
+    }
+  }
+  const result = await bridgePost('/api/circuit/505', {state: newState});
+  if (result) {
+    st.pump = newState === 1;
+    const bar = document.getElementById('pumpBar');
+    if (bar) bar.className = 'pump-bar' + (st.pump ? ' active' : '');
+    const pState = document.getElementById('pumpBarState');
+    if (pState) { pState.textContent = st.pump ? 'Running' : 'Off'; pState.className = 'pump-bar-state ' + (st.pump ? 'on' : 'off'); }
+    const pStats = document.getElementById('pumpBarStats');
+    if (pStats) pStats.textContent = st.pump ? 'Running' : 'Tap to start';
+  }
+}
+
+async function toggleCircuit(circuitId, cardId, name) {
+  const card = document.getElementById(cardId);
+  if (!card) return;
+  const isOn = card.classList.contains('active');
+  const newState = isOn ? 0 : 1;
+  card.className = 'q-card' + (newState ? ' active' : '');
+  const stateEl = document.getElementById(cardId.replace('QCard','QState'));
+  if (stateEl) stateEl.textContent = newState ? 'On' : 'Off';
+  const result = await bridgePost('/api/circuit/' + circuitId, {state: newState});
+  if (!result) {
+    // Revert on failure
+    card.className = 'q-card' + (isOn ? ' active' : '');
+    if (stateEl) stateEl.textContent = isOn ? 'On' : 'Off';
+  }
+}
+
+let _tempSlideTimer = null;
+function onTempSlide() {
+  const val = parseInt(document.getElementById('targetSlider').value);
+  st.targetTemp = val;
+  const el = document.getElementById('tempTarget');
+  if (el) el.textContent = 'Target ' + val + '°F';
+  const sv = document.getElementById('sliderVal');
+  if (sv) sv.textContent = val + '°';
+  // Debounce: send to bridge 800ms after user stops sliding
+  clearTimeout(_tempSlideTimer);
+  _tempSlideTimer = setTimeout(async function() {
+    await bridgePost('/api/heat/temp', {body: 0, temp: val});
+    showToast('Target temp set to ' + val + '°F');
+  }, 800);
+}
+
+async function onHeaterToggle(checked) {
+  if (checked && !st.pump) {
+    if (!window.confirm('Pump is not running! Turn on heater anyway?')) {
+      document.getElementById('heaterToggle').checked = false;
+      return;
+    }
+  }
+  await bridgePost('/api/heat/mode', {body: 0, mode: checked ? 3 : 0});
+  await bridgePost('/api/heat/temp', {body: 0, temp: st.targetTemp});
+  st.heater = checked;
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// LIGHTS & SCENES
+// ═══════════════════════════════════════════════════════════════════
+function setColor(colorId, hex, name) {
+  document.querySelectorAll('.swatch').forEach(s => s.classList.remove('selected'));
+  const sw = document.getElementById('swatch-' + colorId);
+  if (sw) sw.classList.add('selected');
+  const cn = document.getElementById('colorName');
+  if (cn) cn.textContent = name;
+  const cp = document.getElementById('colorPreview');
+  if (cp) cp.style.background = hex === 'party' ? 'conic-gradient(#FF453A,#FF9F0A,#30D158,#5AC8FA,#BF5AF2,#FF453A)' : (hex || 'var(--fill3)');
+  st.lightColor = colorId;
+  // Show/hide Turn Off button
+  const offBtn = document.getElementById('lightsOffBtn');
+  if (offBtn) offBtn.style.display = colorId !== 'off' ? '' : 'none';
+  // Update quick card on home screen
+  const qc = document.getElementById('lightsQCard');
+  const qs = document.getElementById('lightsQState');
+  if (qc) qc.className = 'q-card' + (colorId !== 'off' ? ' active' : '');
+  if (qs) qs.textContent = colorId !== 'off' ? 'On · ' + name : 'Off';
+  if (colorId === 'off') {
+    bridgePost('/api/circuit/501', {state: 0});
+  } else if (colorId === 'party') {
+    bridgePost('/api/lights', {mode: 'party'});
+  } else {
+    bridgePost('/api/lights', {mode: 'on'});
+  }
+}
+
+async function setScene(sceneId) {
+  const scene = SCENE_MAP[sceneId];
+  if (!scene) return;
+  document.querySelectorAll('.scene-card').forEach(c => c.classList.remove('selected'));
+  const card = document.getElementById('scene-' + sceneId);
+  if (card) card.classList.add('selected');
+  const cn = document.getElementById('colorName');
+  if (cn) cn.textContent = sceneId.charAt(0).toUpperCase() + sceneId.slice(1);
+  const cp = document.getElementById('colorPreview');
+  if (cp) cp.style.background = scene.color === 'party' ? 'conic-gradient(#FF453A,#FF9F0A,#30D158,#5AC8FA,#BF5AF2,#FF453A)' : scene.color;
+  // Update quick card
+  const qc = document.getElementById('lightsQCard');
+  const qs = document.getElementById('lightsQState');
+  if (qc) qc.className = 'q-card active';
+  const sceneName = sceneId.charAt(0).toUpperCase() + sceneId.slice(1);
+  if (qs) qs.textContent = 'On · ' + sceneName;
+  // Turn on circuit 501 first, then set scene
+  await bridgePost('/api/circuit/501', {state: 1});
+  await bridgePost('/api/lights', {mode: scene.mode});
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// SETTINGS — RPM
+// ═══════════════════════════════════════════════════════════════════
+function onRpmSlideHome() {
+  const rpm = parseInt(document.getElementById('rpmSliderHome').value);
+  const el = document.getElementById('rpmDisplay');
+  if (el) el.textContent = rpm.toLocaleString();
+  // Sync settings slider too
+  const s = document.getElementById('rpmSlider');
+  if (s) s.value = rpm;
+}
+
+function onRpmSlide() {
+  const rpm = parseInt(document.getElementById('rpmSlider').value);
+  const el = document.getElementById('rpmDisplay');
+  if (el) el.textContent = rpm.toLocaleString();
+}
+
+async function setRpm(rpm) {
+  const slider = document.getElementById('rpmSlider');
+  if (slider) slider.value = rpm;
+  const el = document.getElementById('rpmDisplay');
+  if (el) el.textContent = rpm.toLocaleString();
+  document.querySelectorAll('.rpm-preset').forEach(b => b.classList.remove('active'));
+  // Highlight quick preset cards on home
+  // Sync home slider
+  const homeSlider = document.getElementById('rpmSliderHome');
+  if (homeSlider) homeSlider.value = rpm;
+  // Update all presets
+  ['rpmWhisper','rpmLow','rpmMid','rpmHigh','rpmMax'].forEach(function(id) {
+    const btn = document.getElementById(id);
+    if (btn) btn.className = 'rpm-preset';
+  });
+  const rpmMap = {600:'rpmWhisper',1200:'rpmLow',1900:'rpmMid',2700:'rpmHigh',3450:'rpmMax'};
+  if (rpmMap[rpm]) {
+    const btn = document.getElementById(rpmMap[rpm]);
+    if (btn) btn.className = 'rpm-preset active';
+  }
+  await bridgePost('/api/pump/speed', {pump: 0, rpm: rpm});
+}
+
+function toggleTheme(isDark) {
+  const theme = isDark ? 'dark' : 'light';
+  document.documentElement.setAttribute('data-theme', isDark ? 'dark' : 'light');
+  try { localStorage.setItem('pool_theme', theme); } catch(e) {}
+  const label = document.getElementById('themeLabel');
+  if (label) label.textContent = isDark ? 'Dark Mode' : 'Light Mode';
+  const icon = document.querySelector('#themeToggle').closest('.settings-row').querySelector('.settings-icon');
+  if (icon) icon.textContent = isDark ? '🌙' : '☀️';
+}
+
+function resetSensor() {
+  try { localStorage.removeItem('tuya_creds'); localStorage.removeItem('tuya_token'); } catch(e) {}
+  tuyaConnected = false;
+  tuyaToken = null;
+  document.getElementById('tuyaSetup').style.display = '';
+  document.getElementById('tuyaLivePanel').style.display = 'none';
+  showTab('chem');
+}
+
+function resetApiKey() {
+  try { localStorage.removeItem('anthropic_key'); } catch(e) {}
+  showToast('API key cleared');
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// TUYA SENSOR
+// ═══════════════════════════════════════════════════════════════════
+async function tuyaGetToken(accessId, secret, region) {
+  try {
+    const r = await fetch(BRIDGE_BASE + '/api/tuya/token', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({accessId, secret, region})
+    });
+    const d = await r.json();
+    return d.ok ? d.data.token : null;
+  } catch(e) { return null; }
+}
+
+async function tuyaFetch(accessId, secret, deviceId, token, region) {
+  try {
+    const r = await fetch(BRIDGE_BASE + '/api/tuya/device', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({accessId, secret, deviceId, token, base: 'https://openapi.tuya' + region + '.com'})
+    });
+    const d = await r.json();
+    return d.ok ? d.data.result : null;
+  } catch(e) { return null; }
+}
+
+function renderChemCards(props) {
+  const grid = document.getElementById('chemGrid');
+  if (!grid) return;
+
+  // Bridge-normalized — ph:7.42, cl_value:1.0, orp_value:680, water_temp:82
+  const DEFS = [
+    {key:'ph',        label:'pH',         unit:'',    min:7.2, max:7.8, ideal:[7.4,7.6], desc:'Comfort & chlorine efficiency'},
+    {key:'cl_value',  label:'Chlorine',   unit:'ppm', min:1.0, max:3.0, ideal:[1.5,2.5], desc:'Sanitizer level'},
+    {key:'water_temp',label:'Water Temp', unit:'°F',  min:60,  max:95,  ideal:[78,88],   desc:'Pool temperature'},
+    {key:'tds',       label:'TDS',        unit:'ppm', min:0,   max:2000,ideal:[500,1000], desc:'Total dissolved solids'},
+  ];
+  const propMap = Array.isArray(props)
+    ? Object.fromEntries(props.map(p=>[p.code,p.value]))
+    : {...props};
+
+  grid.innerHTML = DEFS.map(function(def) {
+    let raw = propMap[def.key];
+    if (raw == null) return '';
+    const val = Math.round(parseFloat(raw) * 10) / 10;
+    const pct = Math.max(0, Math.min(1, (val - def.min) / (def.max - def.min)));
+    const inIdeal = val >= def.ideal[0] && val <= def.ideal[1];
+    const inRange = val >= def.min && val <= def.max;
+    const color = inIdeal ? 'var(--green)' : inRange ? 'var(--orange)' : '#ff453a';
+    const statusDot = inIdeal ? '●' : inRange ? '●' : '●';
+    return '<div class="chem-card">' +
+      '<div style="display:flex;justify-content:space-between;align-items:flex-start;">' +
+        '<div class="chem-name">' + def.label + '</div>' +
+        '<span style="color:' + color + ';font-size:9px;">' + statusDot + '</span>' +
+      '</div>' +
+      '<div class="chem-val">' + val + '<span class="chem-unit">' + def.unit + '</span></div>' +
+      '<div class="chem-bar-wrap"><div class="chem-bar" style="width:' + Math.round(pct*100) + '%;background:' + color + ';"></div></div>' +
+      '<div class="chem-range"><span>' + def.min + '</span><span style="color:' + color + ';font-size:10px;">' +
+        (inIdeal ? 'Ideal' : inRange ? 'In range' : 'Out of range') +
+      '</span><span>' + def.max + '</span></div>' +
+    '</div>';
+  }).filter(Boolean).join('');
+
+  // Update the Water Safety hero card
+  updateWaterSafety(propMap);
+}
+
+
+function updateWaterSafety(propMap) {
+  const orp = parseFloat(propMap.orp_value) || 0;
+  const cl  = parseFloat(propMap.cl_value)  || 0;
+  const ph  = parseFloat(propMap.ph)        || 0;
+  const tmp = parseFloat(propMap.water_temp) || 0;
+
+  // ── Helper: set a metric tile ──────────────────────────────────────────────
+  function setMetric(id, val, unit, good, warn) {
+    const valEl    = document.getElementById(id + 'Val');
+    const statusEl = document.getElementById(id + 'Status');
+    const tileEl   = document.getElementById(id.replace('metric','metric'));
+    if (!valEl) return;
+    const display  = val > 0 ? (Number.isInteger(val) ? val : val.toFixed(1)) : '--';
+    valEl.textContent = display;
+    const color = val <= 0 ? 'var(--label3)' : good ? 'var(--green)' : warn ? '#ff9f0a' : '#ff453a';
+    valEl.style.color = color;
+    if (statusEl) { statusEl.textContent = unit; statusEl.style.color = color; }
+  }
+
+  // pH: 7.2-7.8 ok, 7.4-7.6 ideal
+  const phGood = ph >= 7.2 && ph <= 7.8;
+  const phIdeal = ph >= 7.4 && ph <= 7.6;
+  setMetric('metricPH', ph, phIdeal ? 'Ideal' : phGood ? 'In range' : ph > 0 ? 'Check' : '', phGood, phGood);
+
+  // Chlorine: 1-3 ppm ok
+  const clGood = cl >= 1.0 && cl <= 3.0;
+  const clLow  = cl > 0 && cl < 1.0;
+  const clHigh = cl > 3.0;
+  setMetric('metricCL', cl, clGood ? 'ppm ✓' : clLow ? 'ppm Low' : clHigh ? 'ppm High' : 'ppm', clGood, !clLow && !clHigh);
+
+  // ORP: 650-750 ideal, 600+ ok
+  const orpGood = orp >= 600;
+  const orpIdeal = orp >= 650 && orp <= 750;
+  setMetric('metricORP', orp > 0 ? Math.round(orp) : 0, orpIdeal ? 'mV ✓' : orpGood ? 'mV' : orp > 0 ? 'mV Low' : 'mV', orpIdeal, orpGood);
+
+  // Temp
+  const tmpEl = document.getElementById('metricTemp');
+  if (tmpEl && tmp > 0) tmpEl.textContent = '· ' + Math.round(tmp) + '°F';
+
+  // ── Overall status — like a dashboard warning light ────────────────────────
+  // Priority: worst condition wins
+  const scoreEl  = document.getElementById('safetyScore');
+  const labelEl  = document.getElementById('safetyLabel');
+  const subEl    = document.getElementById('safetySubLabel');
+  const stripEl  = document.getElementById('statusStrip');
+  const alertEl  = document.getElementById('safetyAlert');
+  const alertTxt = document.getElementById('safetyAlertText');
+  const cardEl   = document.getElementById('waterSafetyCard');
+  if (!scoreEl) return;
+
+  let severity = 'green'; // green / amber / red
+  let headline = 'All good';
+  let subline  = 'Safe to swim';
+  let icon     = '✓';
+  let alert    = '';
+
+  // Red — don't swim, say what's wrong and what to buy
+  if (orp > 0 && orp < 500) {
+    severity = 'red'; headline = 'Do not swim'; icon = '!';
+    subline  = 'Sanitizing power critically low';
+    alert    = 'Sanitizing power is critically low. Pick up chlorine shock at your pool store, treat, then retest before swimming.';
+  } else if (cl > 0 && cl < 0.5) {
+    severity = 'red'; headline = 'Do not swim'; icon = '!';
+    subline  = 'Chlorine critically low';
+    alert    = 'Chlorine is ' + cl.toFixed(1) + ' ppm — very low. Pick up chlorine tablets or shock at your pool store, treat, then retest before swimming.';
+  } else if (ph > 0 && (ph < 6.8 || ph > 8.2)) {
+    severity = 'red'; headline = 'Do not swim'; icon = '!';
+    subline  = 'pH dangerously out of range';
+    alert    = 'pH is ' + ph.toFixed(1) + '. Pick up pH ' + (ph < 7.0 ? 'Up' : 'Down') + ' at your pool store, treat, then retest before swimming.';
+  }
+  // Amber — needs attention, what's wrong + what to buy + retest
+  else if (orp > 0 && orp < 600 && cl >= 1.0) {
+    severity = 'amber'; headline = 'Needs attention'; icon = '!';
+    subline  = 'Sanitizing power low';
+    alert    = 'Chlorine looks OK but sanitizing power is low — stabilizer (CYA) may be too high. Take a water sample to your pool store, follow their advice, then retest.';
+  } else if (orp > 0 && orp < 600) {
+    severity = 'amber'; headline = 'Needs attention'; icon = '!';
+    subline  = 'Sanitizing power low';
+    alert    = 'Sanitizing power is low. Pick up chlorine shock at your pool store, treat, then retest before swimming.';
+  } else if (cl > 0 && cl < 1.0) {
+    severity = 'amber'; headline = 'Needs attention'; icon = '!';
+    subline  = 'Chlorine is low';
+    alert    = 'Chlorine is ' + cl.toFixed(1) + ' ppm. Pick up chlorine tablets at your pool store, treat, then retest.';
+  } else if (cl > 5.0) {
+    severity = 'amber'; headline = 'Needs attention'; icon = '!';
+    subline  = 'Chlorine is high';
+    alert    = 'Chlorine is ' + cl.toFixed(1) + ' ppm — above the safe range. Wait for it to drop, or take a sample to your pool store, then retest before swimming.';
+  } else if (ph > 0 && (ph < 7.2 || ph > 7.8)) {
+    severity = 'amber'; headline = 'Needs attention'; icon = '!';
+    subline  = 'pH out of range';
+    alert    = ph < 7.2
+      ? 'pH is ' + ph.toFixed(1) + '. Pick up pH Up at your pool store, treat, then retest.'
+      : 'pH is ' + ph.toFixed(1) + '. Pick up pH Down at your pool store, treat, then retest.';
+  }
+  // // Green — all good
+  else if (orp <= 0 && cl <= 0 && ph <= 0) {
+    severity = 'green'; headline = 'Connecting…'; icon = '·';
+    subline = 'Waiting for sensor'; alert = '';
+  }
+
+  // Apply colors
+  const colors = {
+    green: 'var(--green)',
+    amber: '#ff9f0a',
+    red:   '#ff453a',
+  };
+  const col = colors[severity];
+
+  labelEl.textContent       = headline;
+  labelEl.style.color       = col;
+  if (subEl) { subEl.textContent = subline; subEl.style.color = severity === 'green' ? 'var(--label3)' : col; }
+  scoreEl.textContent       = icon;
+  scoreEl.style.color       = col;
+  scoreEl.style.borderColor = col;
+  scoreEl.style.background  = col + '22';
+  if (stripEl) stripEl.style.background = col;
+
+  // Alert box
+  if (alert && alertEl && alertTxt) {
+    alertEl.style.display       = '';
+    alertTxt.textContent        = alert;
+    alertEl.style.borderColor   = col + '44';
+    alertEl.style.background    = col + '11';
+    alertTxt.style.color        = col;
+  } else if (alertEl) {
+    alertEl.style.display = 'none';
+  }
+
+  // Conflict detection: chlorine present but ORP low = CYA likely high
+  if (severity === 'amber' && orp > 0 && orp < 600 && cl >= 1.0 && alertTxt) {
+    alertTxt.textContent = 'Test your water at your local pool store before swimming.';
+  }
+
+  // Timestamp
+  const tsEl = document.getElementById('sensorLastUpdate');
+  if (tsEl) tsEl.textContent = new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
+
+  // Update service reminder urgency
+  updateServiceReminder(severity);
+}
+
+function updateServiceReminder(severity) {
+  const lastTest = localStorage.getItem('last_water_test');
+  const titleEl  = document.getElementById('serviceTitle');
+  const descEl   = document.getElementById('serviceDesc');
+  const lightEl  = document.getElementById('serviceLight');
+  const textEl   = document.getElementById('lastTestText');
+  if (!titleEl) return;
+
+  const daysSince = lastTest
+    ? Math.floor((Date.now() - parseInt(lastTest)) / 86400000)
+    : 999;
+
+  // If water status is already amber/red, escalate the reminder
+  if (severity !== 'green') {
+    titleEl.textContent    = 'Test your water before swimming';
+    descEl.textContent     = 'Test your water at your local pool store before swimming.';
+    if (lightEl) { lightEl.style.borderColor = '#ff9f0a55'; lightEl.style.background = 'rgba(255,159,10,0.1)'; lightEl.textContent = '⚠️'; }
+  } else if (daysSince > 30) {
+    titleEl.textContent    = 'Time for a water test';
+    descEl.textContent     = 'Get a free test at your pool store — checks CYA, alkalinity & hardness that the sensor can't measure.';
+    if (lightEl) { lightEl.style.borderColor = 'rgba(255,159,10,0.3)'; lightEl.style.background = 'rgba(255,159,10,0.1)'; lightEl.textContent = '🧪'; }
+  } else {
+    titleEl.textContent    = 'Water test up to date';
+    descEl.textContent     = 'Next store test recommended in ' + (30 - daysSince) + ' days.';
+    if (lightEl) { lightEl.style.borderColor = 'rgba(48,214,180,0.3)'; lightEl.style.background = 'rgba(48,214,180,0.1)'; lightEl.textContent = '✓'; }
+  }
+
+  if (textEl) {
+    textEl.textContent = lastTest
+      ? 'Last test: ' + new Date(parseInt(lastTest)).toLocaleDateString()
+      : 'No test on record';
+  }
+}
+
+function logTestDone() {
+  localStorage.setItem('last_water_test', Date.now().toString());
+  updateServiceReminder('green');
+}
+
+
+async function tuyaConnect() {
+  const accessId = document.getElementById('tuyaAccessId').value.trim() || TUYA_ACCESS_ID || _CFG.tuya_access_id;
+  const secret = document.getElementById('tuyaSecret').value.trim() || TUYA_SECRET || _CFG.tuya_secret;
+  const deviceId = document.getElementById('tuyaDeviceId').value.trim() || TUYA_DEVICE_ID || _CFG.tuya_device_id;
+  const region = document.getElementById('tuyaRegion').value || TUYA_REGION;
+  const token = await tuyaGetToken(accessId, secret, region);
+  if (!token) { console.warn('[Tuya] token fetch failed — sensor unavailable'); return; }
+  tuyaToken = token;
+  const props = await tuyaFetch(accessId, secret, deviceId, token, region);
+  if (!props) { console.warn('[Tuya] sensor data unavailable'); return; }
+  try { localStorage.setItem('tuya_creds', JSON.stringify({accessId, secret, deviceId, region})); } catch(e) {}
+  showSensorLive(props);
+}
+
+function showSensorLive(props) {
+  const setup = document.getElementById('tuyaSetup');
+  if (setup) setup.style.display = 'none';
+  const panel = document.getElementById('tuyaLivePanel');
+  if (panel) panel.style.display = '';
+  const dot = document.getElementById('liveDot');
+  const status = document.getElementById('liveStatus');
+  if (dot) dot.className = 'live-dot connected';
+  if (status) status.textContent = 'Live';
+  renderChemCards(props);
+  tuyaConnected = true;
+  // Update Deb home card with real chemistry data
+  // Bridge-normalized values — no conversion needed
+  const ph   = props.ph        != null ? parseFloat(props.ph)        : null;
+  const cl   = props.cl_value  != null ? parseFloat(props.cl_value)  : null;
+  const orp  = props.orp_value != null ? parseFloat(props.orp_value) : null;
+  const temp = props.water_temp != null ? parseFloat(props.water_temp) : null;
+  // Build water status summary
+  let issues = [];
+  if (ph !== null) {
+    if (ph < 7.2) issues.push('pH low (' + ph.toFixed(1) + ')');
+    else if (ph > 7.6) issues.push('pH high (' + ph.toFixed(1) + ')');
+  }
+  if (cl !== null) {
+    if (cl < 1.0) issues.push('chlorine low (' + cl.toFixed(1) + ' ppm)');
+    else if (cl > 4.0) issues.push('chlorine high (' + cl.toFixed(1) + ' ppm)');
+  }
+  const waterStatus = document.getElementById('debWaterStatus');
+  const summaryEl = document.getElementById('debSummaryText');
+  if (waterStatus) {
+    const orp2 = parseFloat((props||{}).orp_value) || 0;
+    waterStatus.textContent = issues.length === 0
+      ? (orp2 >= 650 ? '✓ Safe to swim · chemistry good' : orp2 > 0 ? '~ Sanitizing power low — check ORP' : '✓ Water chemistry looks good')
+      : '⚠ ' + issues.join(', ');
+  }
+  if (summaryEl && !window._debLocked) {
+    const parts = [];
+    if (ph !== null) parts.push('pH ' + ph.toFixed(1));
+    if (cl !== null) parts.push('chlorine ' + cl.toFixed(1) + ' ppm');
+    if (orp !== null) parts.push('ORP ' + orp + ' mV');
+    if (temp !== null) parts.push('water ' + temp + '°');
+    if (parts.length > 0) {
+      summaryEl.textContent = issues.length === 0
+        ? 'Water chemistry is good — ' + parts.join(', ') + '.'
+        : 'Water needs attention — ' + issues.join(' and ') + '. ' + parts.join(', ') + '.';
+    }
+  }
+}
+
+// tuyaAutoRefresh removed — sensor data flows through /api/status (bridge polls Tuya server-side)
+
+// ═══════════════════════════════════════════════════════════════════
+// SHOP
+// ═══════════════════════════════════════════════════════════════════
+function buildChips() {
+  const container = document.getElementById('needChips');
+  if (!container) return;
+  container.innerHTML = '';
+  const items = showMoreChems ? [...CHEM_ITEMS_TOP, ...CHEM_ITEMS_MORE] : CHEM_ITEMS_TOP;
+  items.forEach(function(item) {
+    const chip = document.createElement('button');
+    chip.className = 'need-chip' + (shopSelected.has(item.id) ? ' selected' : '');
+    chip.innerHTML = '<span>' + item.icon + '</span> ' + item.label;
+    chip.onclick = function() {
+      if (shopSelected.has(item.id)) shopSelected.delete(item.id);
+      else shopSelected.add(item.id);
+      buildChips();
+      const btn = document.getElementById('shopSearchBtn');
+      if (btn) btn.disabled = shopSelected.size === 0;
+    };
+    container.appendChild(chip);
+  });
+  if (!showMoreChems) {
+    const more = document.createElement('button');
+    more.className = 'need-chip';
+    more.innerHTML = '＋ Other';
+    more.onclick = function() { showMoreChems = true; buildChips(); };
+    container.appendChild(more);
+  }
+  const btn = document.getElementById('shopSearchBtn');
+  if (btn) btn.disabled = shopSelected.size === 0;
+}
+
+function saveZip() {
+  const zip = document.getElementById('shopZip').value.trim();
+  if (zip.length === 5) {
+    try { localStorage.setItem('pool_zip', zip); } catch(e) {}
+    const btn = document.querySelector('.zip-btn');
+    if (btn) { btn.textContent = '✓'; setTimeout(function(){ btn.textContent = 'Save'; }, 1500); }
+  }
+}
+
+async function runSearch() {
+  const zip = document.getElementById('shopZip').value || localStorage.getItem('pool_zip') || DEFAULT_ZIP;
+  const items = [...shopSelected].map(id => {
+    const item = [...CHEM_ITEMS_TOP, ...CHEM_ITEMS_MORE].find(i => i.id === id);
+    return item ? item.label : id;
+  });
+  const resultsEl = document.getElementById('shopResults');
+  if (!resultsEl) return;
+  resultsEl.innerHTML = '<div style="text-align:center;padding:40px 0;"><div class="search-spinner"></div><div style="font-size:16px;font-weight:500;">ChemBuddy is searching…</div><div style="font-size:13px;color:var(--label2);margin-top:4px;">Finding best prices near ' + zip + '</div></div>';
+
+  let apiKey = '';
+
+  const prompt_text = `You are ChemBuddy, a pool chemical price assistant. Find prices for these items near ZIP ${zip}:\n${items.map(i => '- ' + i).join('\n')}\n\nReturn ONLY a JSON array, no markdown:\n[{"name":"Product Name","store":"Amazon|Walmart|Home Depot|Local","price":"$XX.XX","unit":"per lb","url":"https://..."}]\n\nInclude 2-3 options per item. Use realistic 2024 prices.`;
+
+  try {
+    const r = await fetch(sbUrl('/functions/v1/claude-proxy'), {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json', 'Authorization': 'Bearer ' + _CFG.supabase_key},
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 1000,
+        messages: [{role:'user', content: prompt_text}]
+      })
+    });
+    const d = await r.json();
+    const text = d.content && d.content[0] ? d.content[0].text : '';
+    let results = [];
+    try {
+      const clean = text.replace(/```json|```/g, '').trim();
+      results = JSON.parse(clean);
+    } catch(e) {
+      resultsEl.innerHTML = '<div style="padding:20px;color:var(--label2);">Could not parse results. Try again.</div>';
+      return;
+    }
+    const badgeMap = {Amazon:'badge-amazon', Walmart:'badge-walmart', 'Home Depot':'badge-homedepot', Local:'badge-local'};
+    resultsEl.innerHTML = results.map(function(r) {
+      const badge = badgeMap[r.store] || 'badge-amazon';
+      return '<div class="price-card">' +
+        '<div class="price-card-body"><div class="price-card-name">' + r.name + '</div><div class="price-card-meta">' + (r.unit||'') + '</div></div>' +
+        '<div class="price-card-right"><div class="price-tag">' + r.price + '</div><div class="store-badge ' + badge + '">' + r.store + '</div></div>' +
+        '</div>';
+    }).join('');
+  } catch(e) {
+    resultsEl.innerHTML = '<div style="padding:20px;color:var(--label2);">Search failed. Check your connection.</div>';
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// POOL BOY
+// ═══════════════════════════════════════════════════════════════════
+function pbToggle() {
+  const d = document.getElementById('pbDrawer');
+  const o = document.getElementById('pbOverlay');
+  if (!d) return;
+  d.classList.toggle('open');
+  if (o) o.classList.toggle('show');
+  if (d.classList.contains('open') && document.getElementById('pbMessages').children.length === 0) {
+    pbAddMsg('bot', 'Hi! I\'m Pool Girl Deb 🤿 I can help with water chemistry, maintenance, and troubleshooting. What\'s up with your pool?');
+  }
+}
+
+function pbClose() {
+  const d = document.getElementById('pbDrawer');
+  const o = document.getElementById('pbOverlay');
+  if (d) d.classList.remove('open');
+  if (o) o.classList.remove('show');
+}
+
+function pbAddMsg(who, text) {
+  const msgs = document.getElementById('pbMessages');
+  if (!msgs) return;
+  const div = document.createElement('div');
+  div.className = 'pb-msg ' + who;
+  div.innerHTML = '<div class="pb-bubble">' + text.replace(/\n/g,'<br>') + '</div>';
+  msgs.appendChild(div);
+  msgs.scrollTop = msgs.scrollHeight;
+}
+
+function buildDebSystem() {
+  const temp = document.getElementById('tempBig') ? document.getElementById('tempBig').textContent : '—';
+  const pump = document.getElementById('pumpBarStats') ? document.getElementById('pumpBarStats').textContent : '—';
+  const chemCards = document.querySelectorAll('.chem-card');
+  let chem = '';
+  chemCards.forEach(function(c) {
+    const name = c.querySelector('.chem-name') ? c.querySelector('.chem-name').textContent.trim() : '';
+    const val = c.querySelector('.chem-val') ? c.querySelector('.chem-val').textContent.trim() : '';
+    if (name && val) chem += name + ': ' + val + ', ';
+  });
+  return 'You are Pool Girl Deb, a friendly and knowledgeable pool assistant. ' +
+            'Respond in plain conversational English — no markdown, no bullet symbols, no asterisks, no hashtags. ' +
+            'Keep responses short and clear — 2 to 4 sentences max unless the user asks for detail. ' +
+            'Be calm and helpful. Never dramatic or alarmist. ' +
+            'If something needs attention, say it plainly: "Your chlorine is a little low, add about X lbs of chlorine tablets." ' +
+            'Current pool data — Temp: ' + temp + 'F. Pump: ' + pump + '. ' + (chem ? 'Chemistry: ' + chem : 'No chemistry sensor connected. ') +
+            'Use the pool data when answering questions. If data shows a reading is slightly off, mention it calmly with a simple fix.';
+}
+
+var pbHistory = [];
+
+async function pbSend(text) {
+  const input = document.getElementById('pbInput');
+  const msg = text || (input && input.value.trim());
+  if (!msg) return;
+  if (input) input.value = '';
+  pbAddMsg('user', msg);
+  pbHistory.push({role:'user', content: msg});
+  if (pbHistory.length > 12) pbHistory = pbHistory.slice(-12);
+
+  const msgs = document.getElementById('pbMessages');
+  const bubble = document.createElement('div');
+  bubble.className = 'pb-msg bot';
+  const bubbleInner = document.createElement('div');
+  bubbleInner.className = 'pb-bubble';
+  bubbleInner.innerHTML = '<span class="pb-cursor">▋</span>';
+  bubble.appendChild(bubbleInner);
+  if (msgs) { msgs.appendChild(bubble); msgs.scrollTop = msgs.scrollHeight; }
+
+  let apiKey = 'managed-by-supabase';
+  try { apiKey = localStorage.getItem('anthropic_key') || apiKey; } catch(e) {}
+
+  try {
+    const r = await fetch(sbUrl('/functions/v1/claude-proxy'), {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer ' + _CFG.supabase_key,
+      },
+      body: JSON.stringify({
+        model: 'claude-haiku-4-5-20251001',
+        max_tokens: 350,
+        system: buildDebSystem(),
+        messages: pbHistory
+      })
+    });
+    const d = await r.json();
+    const reply = d.content && d.content[0] ? d.content[0].text : '';
+    // Strip markdown formatting for clean display
+    const clean = (reply || 'Sorry, try again.')
+      .replace(/#+\s*/g, '')
+      .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+      .replace(/\*(.*?)\*/g, '$1')
+      .replace(/^[-•]\s+/gm, '')
+      .replace(/\|.*?\|/g, '')
+      .replace(/---+/g, '')
+      .replace(/\n{3,}/g, '\n\n')
+      .trim();
+    // Convert newlines to paragraphs
+    const paras = clean.split('\n\n').filter(p => p.trim());
+    bubbleInner.innerHTML = paras.length > 1
+      ? paras.map(p => '<p style="margin:0 0 8px">' + p.trim() + '</p>').join('')
+      : clean;
+    pbHistory.push({role:'assistant', content: reply});
+  } catch(e) {
+    bubbleInner.innerHTML = 'Connection error — try again.';
+  }
+}
+
+
+async function loadWeather() {
+  try {
+    // Try bridge weather endpoint first (cached, no CORS issues)
+    let temp, uv, sunset;
+    try {
+      const br = await fetch(BRIDGE_BASE + '/api/weather', { signal: AbortSignal.timeout(4000) });
+      if (br.ok) {
+        const bd = await br.json();
+        if (bd.ok && bd.data) {
+          temp = bd.data.air_temp;
+          uv = bd.data.uv_index;
+          sunset = bd.data.sunset;
+        }
+      }
+    } catch(e) {}
+    // Fallback to open-meteo directly
+    if (!temp) {
+      const r = await fetch('https://api.open-meteo.com/v1/forecast?latitude=39.96&longitude=-86.12&current=temperature_2m,uv_index&daily=sunset&temperature_unit=fahrenheit&timezone=America/Indiana/Indianapolis&forecast_days=1', { signal: AbortSignal.timeout(8000) });
+      const d = await r.json();
+      temp = Math.round(d.current.temperature_2m);
+      uv = Math.round(d.current.uv_index);
+      const sunsetRaw = d.daily.sunset[0];
+      sunset = new Date(sunsetRaw).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true }).replace(' ', '').toLowerCase();
+    }
+    const outsideTempEl = document.getElementById('outsideTemp');
+    if (outsideTempEl) outsideTempEl.textContent = temp + '°';
+    const uvEl = document.getElementById('uvIndex');
+    if (uvEl) uvEl.textContent = uv;
+    const sunsetEl = document.getElementById('sunset');
+    if (sunsetEl) sunsetEl.textContent = sunset;
+    const airTempEl = document.getElementById('airTemp');
+    if (airTempEl) airTempEl.textContent = temp + '°';
+    // Set weather icon based on UV index — colored SVG for visibility
+    const iconEl = document.getElementById('weatherIconBg');
+    if (iconEl) {
+      if (uv >= 8) {
+        // Bright sun — orange/yellow
+        iconEl.innerHTML = '<svg width="100" height="100" viewBox="0 0 140 140" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="70" cy="70" r="36" fill="#FF9500"/><circle cx="70" cy="70" r="28" fill="#FFB800"/><circle cx="70" cy="70" r="20" fill="#FFD60A"/><line x1="70" y1="4" x2="70" y2="22" stroke="#FF9500" stroke-width="5" stroke-linecap="round"/><line x1="70" y1="118" x2="70" y2="136" stroke="#FF9500" stroke-width="5" stroke-linecap="round"/><line x1="4" y1="70" x2="22" y2="70" stroke="#FF9500" stroke-width="5" stroke-linecap="round"/><line x1="118" y1="70" x2="136" y2="70" stroke="#FF9500" stroke-width="5" stroke-linecap="round"/><line x1="22" y1="22" x2="35" y2="35" stroke="#FF9500" stroke-width="5" stroke-linecap="round"/><line x1="105" y1="105" x2="118" y2="118" stroke="#FF9500" stroke-width="5" stroke-linecap="round"/><line x1="118" y1="22" x2="105" y2="35" stroke="#FF9500" stroke-width="5" stroke-linecap="round"/><line x1="35" y1="105" x2="22" y2="118" stroke="#FF9500" stroke-width="5" stroke-linecap="round"/></svg>';
+      } else if (uv >= 5) {
+        // Partly cloudy — sun + white cloud
+        iconEl.innerHTML = '<svg width="52" height="52" viewBox="0 0 52 52" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="20" cy="18" r="8" fill="#FFB800"/><line x1="20" y1="4" x2="20" y2="9" stroke="#FFB800" stroke-width="2.5" stroke-linecap="round"/><line x1="4" y1="18" x2="9" y2="18" stroke="#FFB800" stroke-width="2.5" stroke-linecap="round"/><line x1="8" y1="8" x2="13" y2="13" stroke="#FFB800" stroke-width="2.5" stroke-linecap="round"/><line x1="32" y1="8" x2="27" y2="13" stroke="#FFB800" stroke-width="2.5" stroke-linecap="round"/><rect x="12" y="28" width="28" height="14" rx="7" fill="#C8D8E8"/><path d="M18 28 a8 8 0 0 1 16 0" fill="#C8D8E8"/></svg>';
+      } else if (uv >= 2) {
+        // Cloudy — blue-grey cloud
+        iconEl.innerHTML = '<svg width="52" height="52" viewBox="0 0 52 52" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="8" y="22" width="36" height="18" rx="9" fill="#8AAABB"/><path d="M16 22 a12 12 0 0 1 24 0" fill="#8AAABB"/><rect x="18" y="16" width="20" height="12" rx="6" fill="#A8BFCC"/></svg>';
+      } else {
+        // Rain — dark cloud with drops
+        iconEl.innerHTML = '<svg width="52" height="52" viewBox="0 0 52 52" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="8" y="16" width="36" height="16" rx="8" fill="#6A8899"/><path d="M16 16 a12 12 0 0 1 24 0" fill="#6A8899"/><line x1="18" y1="36" x2="16" y2="44" stroke="#5B9BD5" stroke-width="2.5" stroke-linecap="round"/><line x1="26" y1="36" x2="24" y2="44" stroke="#5B9BD5" stroke-width="2.5" stroke-linecap="round"/><line x1="34" y1="36" x2="32" y2="44" stroke="#5B9BD5" stroke-width="2.5" stroke-linecap="round"/></svg>';
+      }
+    }
+  } catch(e) { console.log('[weather] failed:', e.message); }
+}
+
+
+async function activateScene(name) {
+  const btn = document.getElementById('scene-' + name);
+  if (btn) { btn.disabled = true; btn.style.opacity = '0.5'; }
+  try {
+    const r = await fetch(BRIDGE_BASE + '/api/scene/' + name, { method: 'POST',
+      headers: {'Content-Type':'application/json'}, signal: AbortSignal.timeout(10000) });
+    const d = await r.json();
+    if (d.ok) {
+      showToast('Scene activated: ' + SCENE_LABELS[name].label);
+      setTimeout(() => bridgePollStatus(), 2000);
+    } else {
+      showToast('Scene failed: ' + (d.error || 'unknown'));
+    }
+  } catch(e) {
+    showToast('Scene error: ' + e.message);
+  } finally {
+    if (btn) { btn.disabled = false; btn.style.opacity = '1'; }
+  }
+}
+
+function buildScenesUI() {
+  const el = document.getElementById('scenesGrid');
+  if (!el) return;
+  el.innerHTML = Object.entries(SCENE_LABELS).map(([key, s]) =>
+    `<button id="scene-${key}" onclick="activateScene('${key}')" style="
+      background:var(--card-bg);border:1px solid rgba(255,255,255,0.12);border-radius:14px;
+      padding:14px 10px;text-align:center;cursor:pointer;color:var(--label1);width:100%;">
+      <div style="font-size:26px;margin-bottom:6px;">${s.icon}</div>
+      <div style="font-size:13px;font-weight:600;">${s.label}</div>
+      <div style="font-size:11px;color:var(--label2);margin-top:3px;">${s.desc}</div>
+    </button>`
+  ).join('');
+}
+
+// ── Toast notifications ──
+function showToast(msg, duration=3000) {
+  let t = document.getElementById('sp-toast');
+  if (!t) {
+    t = document.createElement('div');
+    t.id = 'sp-toast';
+    t.style.cssText = 'position:fixed;bottom:90px;left:50%;transform:translateX(-50%);background:rgba(30,30,30,0.95);color:#fff;padding:10px 20px;border-radius:20px;font-size:14px;z-index:9999;transition:opacity 0.3s;pointer-events:none;white-space:nowrap;';
+    document.body.appendChild(t);
+  }
+  t.textContent = msg;
+  t.style.opacity = '1';
+  clearTimeout(t._timer);
+  t._timer = setTimeout(() => { t.style.opacity = '0'; }, duration);
+}
+
+// ── History charts ──
+async function loadHistory() {
+  const el = document.getElementById('historyChart');
+  if (!el) return;
+  try {
+    const r = await fetch(BRIDGE_BASE + '/api/energy', { signal: AbortSignal.timeout(8000) });
+    const d = await r.json();
+    const readings = (d.data && d.data.readings) || [];
+    if (!readings.length) { el.innerHTML = '<p style="color:var(--label2);text-align:center;padding:20px;">No history yet — data logs every 5 minutes.</p>'; return; }
+    // Simple SVG sparkline
+    const temps = readings.slice(0,48).reverse().map(r => r.pool_temp || 0);
+    const watts = readings.slice(0,48).reverse().map(r => r.watts || 0);
+    const maxT = Math.max(...temps, 90); const minT = Math.min(...temps, 60);
+    const maxW = Math.max(...watts, 1);
+    const w = 300, h = 80, pad = 4;
+    const pts = (arr, max, min) => arr.map((v,i) => {
+      const x = pad + (i / (arr.length-1)) * (w - 2*pad);
+      const y = h - pad - ((v - min) / (max - min + 1)) * (h - 2*pad);
+      return `${x},${y}`;
+    }).join(' ');
+    el.innerHTML = `
+      <div style="margin-bottom:12px;">
+        <p style="font-size:12px;color:var(--label2);margin:0 0 4px;">Pool temperature (last 4hr)</p>
+        <svg viewBox="0 0 ${w} ${h}" style="width:100%;height:80px;">
+          <polyline points="${pts(temps,maxT,minT)}" fill="none" stroke="#0a84ff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      <div>
+        <p style="font-size:12px;color:var(--label2);margin:0 0 4px;">Pump watts (last 4hr)</p>
+        <svg viewBox="0 0 ${w} ${h}" style="width:100%;height:80px;">
+          <polyline points="${pts(watts,maxW,0)}" fill="none" stroke="#30d158" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      <p style="font-size:11px;color:var(--label2);margin:8px 0 0;">${readings.length} readings · est. ${Math.round(watts.reduce((a,b)=>a+b,0)/watts.length)}W avg</p>`;
+  } catch(e) {
+    if (el) el.innerHTML = '<p style="color:var(--label2);text-align:center;padding:20px;">History unavailable</p>';
+  }
+}
+
+// ── Schedules UI ──
+async function loadSchedules() {
+  const el = document.getElementById('schedulesList');
+  if (!el) return;
+  try {
+    const r = await fetch(BRIDGE_BASE + '/api/schedules', { signal: AbortSignal.timeout(8000) });
+    const d = await r.json();
+    const schedules = (d.data && d.data.schedules) || [];
+    if (!schedules.length) {
+      el.innerHTML = '<p style="color:var(--label2);font-size:13px;">No schedules yet. Add one below.</p>';
+      return;
+    }
+    el.innerHTML = schedules.map(s => `
+      <div style="background:var(--card-bg);border-radius:12px;padding:12px 14px;margin-bottom:8px;border:1px solid rgba(255,255,255,0.08);">
+        <div style="display:flex;justify-content:space-between;align-items:center;">
+          <span style="font-size:14px;font-weight:600;">${s.name}</span>
+          <span style="font-size:13px;color:var(--teal);">${s.time_hhmm}</span>
+        </div>
+        <div style="font-size:12px;color:var(--label2);margin-top:3px;">${(s.days||[]).join(', ')} · ${s.action?.type || ''}</div>
+      </div>`).join('');
+  } catch(e) {}
+}
+
+async function addSchedule() {
+  const name = document.getElementById('sched-name')?.value;
+  const time = document.getElementById('sched-time')?.value;
+  const days = document.getElementById('sched-days')?.value;
+  const scene = document.getElementById('sched-scene')?.value;
+  if (!name || !time || !scene) { showToast('Fill in all fields'); return; }
+  const daysArr = days === 'daily' ? ['daily'] : [days];
+  try {
+    const r = await fetch(BRIDGE_BASE + '/api/schedules', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ name, time_hhmm: time, days: daysArr, action: { type: 'scene', scene } }),
+      signal: AbortSignal.timeout(8000)
+    });
+    const d = await r.json();
+    if (d.ok) { showToast('Schedule saved!'); loadSchedules(); }
+    else showToast('Failed: ' + (d.error || 'unknown'));
+  } catch(e) { showToast('Error: ' + e.message); }
+}
+
+// ── Push notification registration ──
+async function registerPushToken() {
+  if (!window.Capacitor) return;
+  try {
+    const { PushNotifications } = window.Capacitor.Plugins;
+    if (!PushNotifications) return;
+    await PushNotifications.requestPermissions();
+    await PushNotifications.register();
+    PushNotifications.addListener('registration', async token => {
+      console.log('[push] token:', token.value);
+      await fetch(BRIDGE_BASE + '/api/push/register', {
+        method: 'POST',
+        headers: {'Content-Type':'application/json'},
+        body: JSON.stringify({ token: token.value, device_id: 'ios-' + Date.now() })
+      });
+      showToast('Push notifications enabled');
+    });
+    PushNotifications.addListener('pushNotificationReceived', notification => {
+      showToast(notification.title + ': ' + notification.body);
+    });
+  } catch(e) {
+    console.log('[push] registration error:', e);
+  }
+}
+
+// ── Freeze protection status ──
+async function checkFreezeStatus() {
+  const el = document.getElementById('freezeStatus');
+  if (!el) return;
+  try {
+    const r = await fetch(BRIDGE_BASE + '/api/freeze', { signal: AbortSignal.timeout(5000) });
+    const d = await r.json();
+    const active = d.data && d.data.active;
+    el.textContent = active ? '❄️ Freeze protection ACTIVE' : '✓ Freeze protection standby';
+    el.style.color = active ? '#0a84ff' : 'var(--label2)';
+  } catch(e) {}
+}
+
+// ── Guest access ──
+function generateGuestCode() {
+  return Math.random().toString(36).substring(2,8).toUpperCase();
+}
+
+// ── Energy stats ──
+async function loadEnergyStats() {
+  const el = document.getElementById('energyStats');
+  if (!el) return;
+  try {
+    const r = await fetch(BRIDGE_BASE + '/api/energy', { signal: AbortSignal.timeout(8000) });
+    const d = await r.json();
+    const readings = (d.data && d.data.readings) || [];
+    if (!readings.length) return;
+    const avgWatts = Math.round(readings.reduce((a,b) => a + (b.watts||0), 0) / readings.length);
+    const kwhDay = Math.round((avgWatts * 24) / 1000 * 10) / 10;
+    const costDay = Math.round(kwhDay * 0.12 * 100) / 100;
+    el.innerHTML = `
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;text-align:center;">
+        <div style="background:rgba(255,255,255,0.06);border-radius:10px;padding:10px;">
+          <div style="font-size:20px;font-weight:700;">${avgWatts}W</div>
+          <div style="font-size:11px;color:var(--label2);">avg power</div>
+        </div>
+        <div style="background:rgba(255,255,255,0.06);border-radius:10px;padding:10px;">
+          <div style="font-size:20px;font-weight:700;">${kwhDay}</div>
+          <div style="font-size:11px;color:var(--label2);">kWh/day</div>
+        </div>
+        <div style="background:rgba(255,255,255,0.06);border-radius:10px;padding:10px;">
+          <div style="font-size:20px;font-weight:700;">$${costDay}</div>
+          <div style="font-size:11px;color:var(--label2);">/day est.</div>
+        </div>
+      </div>`;
+  } catch(e) {}
+}
+
+// ── Sprint 4 init ──
+function initSprint4() {
+  buildScenesUI();
+  loadHistory();
+  loadSchedules();
+  checkFreezeStatus();
+  loadEnergyStats();
+  registerPushToken();
+  // Refresh history every 5 min
+  setInterval(loadHistory, 300000);
+  setInterval(checkFreezeStatus, 600000);
+  setInterval(loadEnergyStats, 300000);
+}
+
+
+// ── Deb Home Summary Card ──
+function updateDebSummary(pool, chemistry) {
+  // Water chemistry status — unique info Deb provides
+  const ph = chemistry && parseFloat(chemistry.ph);
+  const cl = chemistry && parseFloat(chemistry.cl_value);
+  let waterMsg = 'Connect your YINMIK sensor for chemistry readings.';
+  if (ph && cl) {
+    const phOk = ph >= 7.2 && ph <= 7.6;
+    const clOk = cl >= 1 && cl <= 3;
+    if (phOk && clOk) waterMsg = '✓ Water chemistry looks good';
+    else if (!phOk) waterMsg = '⚠ pH ' + ph.toFixed(1) + ' — ' + (ph < 7.2 ? 'add pH Up' : 'add pH Down');
+    else if (!clOk) waterMsg = '⚠ Chlorine ' + (cl < 1 ? 'low — add chlorine' : 'high — stop dosing');
+  }
+  document.getElementById('debWaterStatus').textContent = waterMsg;
+
+  // Deb summary — only what the UI above doesn't show
+  const heater = pool && pool.heat_mode > 0;
+  const target = pool && pool.heat_set_point ? pool.heat_set_point : (pool && pool.target_temp);
+  const current = pool && pool.current_temp;
+  let summary = '';
+  if (heater && target && current) {
+    const diff = target - current;
+    if (diff > 0) summary = 'Heating toward ' + target + '°F — about ' + Math.round(diff * 8) + ' min away.';
+    else summary = 'Pool is at target temp. Heater maintaining ' + target + '°F.';
+  } else if (!heater) {
+    summary = 'Heater is off. Tap the heater toggle to start heating.';
+  } else {
+    summary = 'All systems running normally.';
+  }
+  const el = document.getElementById('debSummaryText');
+  if (el) el.textContent = summary;
+}
+
+async function debHomeAsk() {
+  const q = document.getElementById('debHomeInput').value.trim();
+  if (!q) return;
+  document.getElementById('debHomeInput').value = '';
+  document.getElementById('debSummaryText').textContent = 'Thinking…';
+  try {
+    // Route through Pi bridge — key lives in /etc/pool-boy/config.env, never expires silently
+    const r = await fetch(BRIDGE_BASE + '/api/deb', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({
+        system: window._debSystemPrompt || 'You are Pool Girl Deb, a friendly pool expert. Be concise - 1-2 sentences max.',
+        messages: [{role: 'user', content: q}],
+        max_tokens: 150
+      }),
+      signal: AbortSignal.timeout(25000)
+    });
+    const d = await r.json();
+    const txt = (d.ok && d.data && d.data.text) ? d.data.text : (d.error || 'Sorry, try again.');
+    document.getElementById('debSummaryText').textContent = txt;
+  } catch(e) {
+    document.getElementById('debSummaryText').textContent = 'Could not reach Deb. Check your connection.';
+  }
+}
+
+// ── Settings — Schedules ──
+async function settLoadSchedules() {
+  const el = document.getElementById('settSchedulesList');
+  if (!el) return;
+  try {
+    const r = await fetch(BRIDGE_BASE + '/api/schedules', {signal: AbortSignal.timeout(8000)});
+    const d = await r.json();
+    const schedules = (d.data && d.data.schedules) || [];
+    if (!schedules.length) {
+      el.innerHTML = '<div style="padding:12px 16px;font-size:14px;color:var(--label2);">No schedules yet</div>';
+      return;
+    }
+    el.innerHTML = schedules.map(s => `
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 16px;border-bottom:1px solid rgba(255,255,255,0.06);">
+        <div>
+          <div style="font-size:15px;font-weight:500;">${s.name}</div>
+          <div style="font-size:12px;color:var(--label2);margin-top:2px;">${(s.days||[]).join(', ')} · ${s.action?.scene||''}</div>
+        </div>
+        <div style="font-size:16px;font-weight:700;color:var(--teal);">${s.time_hhmm}</div>
+      </div>`).join('');
+  } catch(e) {}
+}
+
+async function settSaveSchedule() {
+  const name = document.getElementById('sett-sched-name').value;
+  const time = document.getElementById('sett-sched-time').value;
+  const scene = document.getElementById('sett-sched-scene').value;
+  if (!name || !time || !scene) { showToast('Fill in all fields'); return; }
+  try {
+    const r = await fetch(BRIDGE_BASE + '/api/schedules', {
+      method: 'POST', headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({name, time_hhmm: time, days: ['daily'], action: {type:'scene', scene}})
+    });
+    const d = await r.json();
+    if (d.ok) { showToast('Schedule saved!'); settLoadSchedules(); }
+  } catch(e) { showToast('Error saving schedule'); }
+}
+
+// ── Settings — Energy ──
+async function settLoadEnergy() {
+  try {
+    const r = await fetch(BRIDGE_BASE + '/api/energy', {signal: AbortSignal.timeout(8000)});
+    const d = await r.json();
+    const readings = (d.data && d.data.readings) || [];
+    if (!readings.length) return;
+    const avg = Math.round(readings.reduce((a,b) => a+(b.watts||0),0)/readings.length);
+    const kwh = Math.round(avg*24/1000*10)/10;
+    const cost = '$' + (kwh*0.12).toFixed(2);
+    document.getElementById('sett-es-watts').textContent = avg + 'W';
+    document.getElementById('sett-es-kwh').textContent = kwh;
+    document.getElementById('sett-es-cost').textContent = cost;
+    const runHrs = readings.filter(r => (r.watts || 0) > 50).length * 5 / 60;
+    document.getElementById('sett-es-runtime').textContent = runHrs.toFixed(1) + 'h';
+
+    // Sparkline
+    const temps = readings.slice(0,48).reverse().map(r => r.pool_temp||0);
+    const maxT = Math.max(...temps,90), minT = Math.min(...temps,60);
+    const pts = temps.map((v,i) => {
+      const x = 4 + (i/(temps.length-1))*292;
+      const y = 44 - 4 - ((v-minT)/(maxT-minT+1))*36;
+      return x+','+y;
+    }).join(' ');
+    document.getElementById('sett-history-chart').innerHTML =
+      '<p style="font-size:11px;color:var(--label2);margin:10px 0 4px;">Pool temp last 4hr</p>' +
+      '<svg viewBox="0 0 300 48" style="width:100%;height:48px;">' +
+      '<polyline points="'+pts+'" fill="none" stroke="var(--teal)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>' +
+      '</svg>';
+  } catch(e) {}
+}
+
+// ── Settings — Freeze ──
+async function settCheckFreeze() {
+  try {
+    const r = await fetch(BRIDGE_BASE + '/api/freeze', {signal: AbortSignal.timeout(5000)});
+    const d = await r.json();
+    const active = d.data && d.data.active;
+    const el = document.getElementById('sett-freeze-status');
+    if (el) el.textContent = active ? '❄️ ACTIVE — pump running to prevent freeze' : 'Standby · activates below 35°F';
+  } catch(e) {}
+}
+
+
+// ═══════════════════════════════════════════════════════════════════
+// MULTI-HOME SUPPORT
+// ═══════════════════════════════════════════════════════════════════
+let _locations = [];
+let _currentLocation = null;
+
+async function loadLocations() {
+  try {
+    const saved = localStorage.getItem('pool_locations');
+    if (saved) _locations = JSON.parse(saved);
+    // Also fetch from Supabase
+    const r = await fetch(sbUrl('/rest/v1/locations?is_active=eq.true&order=created_at.asc'), {
+      headers: {
+        'apikey': _CFG.supabase_key,
+        'Authorization': 'Bearer ' + _CFG.supabase_key
+      }
+    });
+    if (r.ok) {
+      const rows = await r.json();
+      if (rows.length) { _locations = rows; localStorage.setItem('pool_locations', JSON.stringify(rows)); }
+    }
+  } catch(e) {}
+  // Default home location
+  if (!_locations.length) {
+    _locations = [{ id: 1, name: 'Home', bridge_ip: '', bridge_port: 8080 }];
+  }
+  _currentLocation = _locations[0];
+  // Set BRIDGE_BASE from saved location IP if available,
+  // otherwise keep the URL detected in bootApp from window.location
+  if (_currentLocation && _currentLocation.bridge_ip) {
+    BRIDGE_BASE = 'http://' + _currentLocation.bridge_ip + ':' + (_currentLocation.bridge_port || 8080);
+  }
+  updateLocationUI();
+  // Start bridge connection now that BRIDGE_BASE is confirmed
+  if (!bridgePollTimer) bridgeInit();
+}
+
+function updateLocationUI() {
+  const el = document.getElementById('locationName');
+  if (el && _currentLocation) el.textContent = _currentLocation.name;
+}
+
+function switchLocation(loc) {
+  _currentLocation = loc;
+  BRIDGE_BASE = 'http://' + loc.bridge_ip + ':' + loc.bridge_port;
+  updateLocationUI();
+  hideLocationMenu();
+  showToast('Switched to ' + loc.name);
+  window._debInitialized = false;
+  setTimeout(() => { checkConnection(); }, 500);
+}
+
+function showLocationMenu() {
+  let menu = document.getElementById('locationMenu');
+  if (menu) { menu.remove(); return; }
+  menu = document.createElement('div');
+  menu.id = 'locationMenu';
+  menu.style.cssText = 'position:fixed;top:50px;left:16px;right:16px;background:rgba(28,28,30,0.98);backdrop-filter:blur(20px);border-radius:14px;z-index:500;overflow:hidden;border:1px solid rgba(255,255,255,0.1);';
+  menu.innerHTML = _locations.map(loc => `
+    <div onclick="switchLocation(${JSON.stringify(loc).replace(/"/g,'&quot;')})" style="padding:14px 16px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid rgba(255,255,255,0.06);cursor:pointer;">
+      <div>
+        <div style="font-size:15px;font-weight:500;">${loc.name}</div>
+        <div style="font-size:12px;color:rgba(255,255,255,0.4);">${loc.bridge_ip}</div>
+      </div>
+      ${_currentLocation && _currentLocation.id === loc.id ? '<div style="color:#30d6b4;font-size:18px;">✓</div>' : ''}
+    </div>
+  `).join('') + `
+    <div onclick="showAddLocation()" style="padding:14px 16px;color:#30d6b4;font-size:14px;font-weight:600;cursor:pointer;text-align:center;">+ Add location</div>
+  `;
+  document.body.appendChild(menu);
+  setTimeout(() => document.addEventListener('click', hideLocationMenuOutside), 100);
+}
+
+function hideLocationMenuOutside(e) {
+  const menu = document.getElementById('locationMenu');
+  if (menu && !menu.contains(e.target)) { hideLocationMenu(); document.removeEventListener('click', hideLocationMenuOutside); }
+}
+
+function hideLocationMenu() {
+  const menu = document.getElementById('locationMenu');
+  if (menu) menu.remove();
+}
+
+function showAddLocation() {
+  hideLocationMenu();
+  const name = prompt('Location name (e.g. "Parents house"):');
+  if (!name) return;
+  const ip = prompt('Bridge IP address (e.g. 192.168.1.100):');
+  if (!ip) return;
+  const newLoc = { id: Date.now(), name, bridge_ip: ip, bridge_port: 8080, is_active: true };
+  _locations.push(newLoc);
+  localStorage.setItem('pool_locations', JSON.stringify(_locations));
+  // Save to Supabase
+  fetch(sbUrl('/rest/v1/locations'), {
+    method: 'POST',
+    headers: {
+      'apikey': _CFG.supabase_key,
+      'Authorization': 'Bearer ' + _CFG.supabase_key,
+      'Content-Type': 'application/json', 'Prefer': 'return=minimal'
+    },
+    body: JSON.stringify({ name, bridge_ip: ip, bridge_port: 8080, device_id: 'manual-add', is_active: true })
+  });
+  showToast(name + ' added');
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// HISTORY CHARTS (improved)
+// ═══════════════════════════════════════════════════════════════════
+async function loadHistoryCharts() {
+  const el = document.getElementById('historyChartArea');
+  if (!el) return;
+  try {
+    const r = await fetch(BRIDGE_BASE + '/api/energy', { signal: AbortSignal.timeout(8000) });
+    const d = await r.json();
+    const readings = (d.data && d.data.readings) || [];
+    if (!readings.length) {
+      el.innerHTML = '<p style="font-size:13px;color:rgba(255,255,255,0.4);text-align:center;padding:20px 0;">No history yet — data logs every 5 minutes.</p>';
+      return;
+    }
+    const pts = readings.slice(0, 288).reverse();
+    const temps  = pts.map(r => r.pool_temp || 0);
+    const watts  = pts.map(r => r.watts || 0);
+    const avgW   = Math.round(watts.reduce((a,b)=>a+b,0)/watts.length);
+    const kwhDay = Math.round(avgW * 24 / 1000 * 10) / 10;
+    const costDay = '$' + (kwhDay * 0.12).toFixed(2);
+
+    function sparkline(data, color, label, unit) {
+      const max = Math.max(...data, 1), min = Math.min(...data, 0);
+      const w = 320, h = 60, pad = 4;
+      const pts2 = data.map((v,i) => {
+        const x = pad + (i/(data.length-1||1))*(w-2*pad);
+        const y = h - pad - ((v-min)/(max-min||1))*(h-2*pad);
+        return x+','+y;
+      }).join(' ');
+      const last = data[data.length-1];
+      return `<div style="margin-bottom:16px;">
+        <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:4px;">
+          <span style="font-size:12px;color:rgba(255,255,255,0.5);">${label}</span>
+          <span style="font-size:18px;font-weight:700;">${last}${unit}</span>
+        </div>
+        <svg viewBox="0 0 ${w} ${h}" style="width:100%;height:60px;display:block;">
+          <defs><linearGradient id="grad_${color.replace('#','')}" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="${color}" stop-opacity="0.3"/>
+            <stop offset="100%" stop-color="${color}" stop-opacity="0.0"/>
+          </linearGradient></defs>
+          <polygon points="${pts2} ${w-pad},${h} ${pad},${h}" fill="url(#grad_${color.replace('#','')})" />
+          <polyline points="${pts2}" fill="none" stroke="${color}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>`;
+    }
+
+    el.innerHTML = `
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:16px;text-align:center;">
+        <div style="background:rgba(255,255,255,0.06);border-radius:10px;padding:10px;">
+          <div style="font-size:18px;font-weight:700;">${avgW}W</div>
+          <div style="font-size:11px;color:rgba(255,255,255,0.4);margin-top:2px;">avg power</div>
+        </div>
+        <div style="background:rgba(255,255,255,0.06);border-radius:10px;padding:10px;">
+          <div style="font-size:18px;font-weight:700;">${kwhDay}</div>
+          <div style="font-size:11px;color:rgba(255,255,255,0.4);margin-top:2px;">kWh/day</div>
+        </div>
+        <div style="background:rgba(255,255,255,0.06);border-radius:10px;padding:10px;">
+          <div style="font-size:18px;font-weight:700;">${costDay}</div>
+          <div style="font-size:11px;color:rgba(255,255,255,0.4);margin-top:2px;">/day est.</div>
+        </div>
+      </div>
+      ${sparkline(temps, '#0a84ff', 'Pool temperature', '°F')}
+      ${sparkline(watts, '#30d158', 'Pump power', 'W')}
+    `;
+  } catch(e) {
+    if (el) el.innerHTML = '<p style="font-size:13px;color:rgba(255,255,255,0.4);text-align:center;padding:20px 0;">History unavailable</p>';
+  }
+}
+
+
+// ═══════════════════════════════════════════════════════════════════
+// GUEST ACCESS
+// ═══════════════════════════════════════════════════════════════════
+function generateGuestCode() {
+  return Math.random().toString(36).substring(2, 8).toUpperCase();
+}
+
+async function createGuestAccess() {
+  const name    = prompt('Guest name (e.g. "House sitter" or "Family"):');
+  if (!name) return;
+  const code    = generateGuestCode();
+  const expires = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString();
+  const row = { guest_name: name, access_code: code, permissions: ['view', 'lights'], expires_at: expires };
+  try {
+    const r = await fetch(sbUrl('/rest/v1/guest_access'), {
+      method: 'POST',
+      headers: {
+        ...sbHeaders(),
+        'Content-Type': 'application/json', 'Prefer': 'return=minimal'
+      },
+      body: JSON.stringify(row)
+    });
+    if (r.ok) {
+      showToast('Guest access created!');
+      try { navigator.clipboard.writeText(code); } catch(e) {} showToast('Code copied: ' + code + ' — share with ' + name + '. Expires in 7 days'); // was: alert('Share this code with ' + name + ':\n\n' + code + '\n\nExpires in 7 days. They can view pool status and control lights.');
+      loadGuestAccess();
+    }
+  } catch(e) { showToast('Error creating guest access'); }
+}
+
+async function loadGuestAccess() {
+  const el = document.getElementById('guestAccessList');
+  if (!el) return;
+  try {
+    const r = await fetch(sbUrl('/rest/v1/guest_access?order=created_at.desc&limit=10'), {
+      headers: {
+        'apikey': _CFG.supabase_key,
+        'Authorization': 'Bearer ' + _CFG.supabase_key
+      }
+    });
+    const rows = r.ok ? await r.json() : [];
+    if (!rows.length) { el.innerHTML = '<div style="font-size:13px;color:rgba(255,255,255,0.4);padding:8px 0;">No active guest access</div>'; return; }
+    const now = new Date();
+    el.innerHTML = rows.map(g => {
+      const expires = new Date(g.expires_at);
+      const active = expires > now;
+      const daysLeft = Math.ceil((expires - now) / (1000*60*60*24));
+      return `<div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid rgba(255,255,255,0.06);">
+        <div>
+          <div style="font-size:14px;font-weight:500;">${g.guest_name}</div>
+          <div style="font-size:12px;color:rgba(255,255,255,0.4);margin-top:2px;">Code: ${g.access_code} · ${active ? daysLeft + ' days left' : 'Expired'}</div>
+        </div>
+        <div style="font-size:11px;color:${active ? '#30d158' : '#ff453a'};font-weight:600;">${active ? 'Active' : 'Expired'}</div>
+      </div>`;
+    }).join('');
+  } catch(e) {}
+}
+
+
+// ═══════════════════════════════════════════════════════════════════
+// POOL BOY DELIVERY — CART & CHECKOUT
+// ═══════════════════════════════════════════════════════════════════
+let _cart = [];
+
+function addToCart(id, name, price) {
+  const existing = _cart.find(i => i.id === id);
+  if (existing) {
+    existing.qty++;
+  } else {
+    _cart.push({ id, name, price, qty: 1 });
+  }
+  renderCart();
+  showToast(name + ' added to order');
+}
+
+function removeFromCart(id) {
+  _cart = _cart.filter(i => i.id !== id);
+  renderCart();
+}
+
+function renderCart() {
+  const bar     = document.getElementById('shopOrderBar');
+  const itemsEl = document.getElementById('shopCartItems');
+  const totalEl = document.getElementById('shopCartTotal');
+  const payEl   = document.getElementById('shopPayTotal');
+  const countEl = document.getElementById('shopCartCount');
+  if (!bar) return;
+  if (!_cart.length) { bar.style.display = 'none'; return; }
+  bar.style.display = 'block';
+  let total = 0;
+  let count = 0;
+  itemsEl.innerHTML = _cart.map(item => {
+    total += item.price * item.qty;
+    count += item.qty;
+    return `<div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid rgba(255,255,255,0.06);">
+      <div>
+        <div style="font-size:13px;font-weight:500;">${item.name}</div>
+        <div style="font-size:11px;color:var(--label2);">Qty: ${item.qty} · $${(item.price * item.qty).toFixed(2)}</div>
+      </div>
+      <button onclick="removeFromCart('${item.id}')" style="background:rgba(255,69,58,0.15);border:none;border-radius:6px;padding:4px 8px;color:#ff453a;font-size:12px;cursor:pointer;">✕</button>
+    </div>`;
+  }).join('');
+  if (countEl) countEl.textContent = count;
+  if (payEl) payEl.textContent = total.toFixed(2);
+  totalEl.textContent = '$' + total.toFixed(2);
+}
+
+const STRIPE_PK = 'pk_live_51SzyqL4POpzLCEwEpMbkdaaUl2y4B6JOrALbSAMhrUlV6UxWr1HfBGzvEG3et80iyQvSk7blwz04PieXOAveq7jw00avTKhkii';
+let _stripe = null;
+let _stripeElements = null;
+let _paymentElement = null;
+
+function getStripe() {
+  if (!_stripe) _stripe = Stripe(STRIPE_PK);
+  return _stripe;
+}
+
+async function checkout() {
+  if (!_cart.length) return;
+  const total = _cart.reduce((s, i) => s + i.price * i.qty, 0);
+  const items = _cart.map(i => i.name + ' x' + i.qty).join(', ');
+  const totalCents = Math.round(total * 100);
+
+  // Log order intent to Supabase regardless
+  const orderData = { items: _cart, total: total.toFixed(2), address: 'Carmel, IN', ts: new Date().toISOString() };
+  fetch(sbUrl('/rest/v1/events'), {
+    method: 'POST',
+    headers: {
+      'apikey': _CFG.supabase_key,
+      'Authorization': 'Bearer ' + _CFG.supabase_key,
+      'Content-Type': 'application/json', 'Prefer': 'return=minimal'
+    },
+    body: JSON.stringify({ type: 'order_intent', message: 'Order: ' + items, data: orderData, ts: new Date().toISOString() })
+  });
+
+  // Show payment modal
+  showPaymentModal(totalCents, items, total);
+}
+
+function showPaymentModal(totalCents, items, total) {
+  // Remove existing modal
+  const existing = document.getElementById('stripeModal');
+  if (existing) existing.remove();
+
+  const modal = document.createElement('div');
+  modal.id = 'stripeModal';
+  modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:1000;display:flex;align-items:flex-end;';
+  modal.innerHTML = `
+    <div style="background:#1c1c1e;border-radius:24px 24px 0 0;width:100%;padding:24px;max-height:90vh;overflow-y:auto;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
+        <div>
+          <div style="font-size:18px;font-weight:700;">Complete order</div>
+          <div style="font-size:13px;color:rgba(255,255,255,0.5);margin-top:2px;">Pool Boy Delivery · Free shipping</div>
+        </div>
+        <button onclick="document.getElementById('stripeModal').remove()" style="background:rgba(255,255,255,0.1);border:none;border-radius:50%;width:32px;height:32px;color:#fff;font-size:18px;cursor:pointer;">×</button>
+      </div>
+      <div style="background:rgba(255,255,255,0.05);border-radius:12px;padding:14px;margin-bottom:20px;">
+        <div style="font-size:13px;color:rgba(255,255,255,0.5);margin-bottom:6px;">Order summary</div>
+        <div style="font-size:14px;">${items}</div>
+        <div style="font-size:22px;font-weight:700;color:#30d6b4;margin-top:8px;">$${total.toFixed(2)}</div>
+      </div>
+      <div id="stripePaymentElement" style="margin-bottom:20px;"></div>
+      <div id="stripeError" style="color:#ff453a;font-size:13px;margin-bottom:12px;display:none;"></div>
+      <button id="stripePayBtn" onclick="confirmPayment(${totalCents})" style="width:100%;background:#30d6b4;border:none;border-radius:14px;padding:16px;color:#000;font-size:17px;font-weight:700;cursor:pointer;">
+        Pay $${total.toFixed(2)}
+      </button>
+      <p style="font-size:11px;color:rgba(255,255,255,0.3);text-align:center;margin-top:12px;">
+        Secured by Stripe
+      </p>
+    </div>
+  `;
+  document.body.appendChild(modal);
+  initStripeElements(totalCents);
+}
+
+async function initStripeElements(totalCents) {
+  try {
+    const stripe = getStripe();
+    // Create a PaymentIntent via Supabase Edge Function
+    const r = await fetch(sbUrl('/functions/v1/create-payment-intent'), {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer ' + _CFG.supabase_key
+      },
+      body: JSON.stringify({ amount: totalCents, currency: 'usd', description: 'Pool Boy chemical delivery' })
+    });
+    const { clientSecret } = await r.json();
+    _stripeElements = stripe.elements({ clientSecret, appearance: { theme: 'night', variables: { colorPrimary: '#30d6b4', borderRadius: '10px' } } });
+    _paymentElement = _stripeElements.create('payment');
+    _paymentElement.mount('#stripePaymentElement');
+    window._stripeClientSecret = clientSecret;
+  } catch(e) {
+    document.getElementById('stripeError').style.display = 'block';
+    document.getElementById('stripeError').textContent = 'Could not load payment. Try again.';
+  }
+}
+
+async function confirmPayment(totalCents) {
+  const btn = document.getElementById('stripePayBtn');
+  btn.disabled = true;
+  btn.textContent = 'Processing…';
+  const errEl = document.getElementById('stripeError');
+  try {
+    const stripe = getStripe();
+    const { error } = await stripe.confirmPayment({
+      elements: _stripeElements,
+      confirmParams: { return_url: window.location.href },
+      redirect: 'if_required'
+    });
+    if (error) {
+      errEl.style.display = 'block';
+      errEl.textContent = error.message;
+      btn.disabled = false;
+      btn.textContent = 'Try again';
+    } else {
+      // Payment succeeded
+      document.getElementById('stripeModal').remove();
+      showToast('Order placed! Delivery in 1-2 days. 🎉');
+      _cart = [];
+      renderCart();
+    }
+  } catch(e) {
+    errEl.style.display = 'block';
+    errEl.textContent = 'Payment failed. Please try again.';
+    btn.disabled = false;
+    btn.textContent = 'Try again';
+  }
+}
+
+// Show Deb delivery recommendation based on sensor data
+function updateShopDebRecommendation() {
+  const banner = document.getElementById('shopDebBanner');
+  const text = document.getElementById('shopDebText');
+  if (!banner || !text) return;
+  // Check if we have chemistry data
+  const ph = window._lastChemistry && window._lastChemistry.ph;
+  const cl = window._lastChemistry && window._lastChemistry.cl;
+  if (!ph && !cl) {
+    banner.style.display = 'none';
+    return;
+  }
+  let recs = [];
+  if (cl !== null && cl < 1.0) recs.push('Chlorine is low (' + (cl||0).toFixed(1) + ' ppm) — order chlorine tablets');
+  if (ph !== null && ph < 7.2) recs.push('pH is low (' + (ph||0).toFixed(1) + ') — order pH Up');
+  if (ph !== null && ph > 7.6) recs.push('pH is high (' + (ph||0).toFixed(1) + ') — order pH Down');
+  if (recs.length) {
+    banner.style.display = 'block';
+    text.textContent = recs.join('. ') + '.';
+  } else {
+    banner.style.display = 'none';
+  }
+}
+
+// ── Boot sequence ───────────────────────────────────────────────
+// 1. Fetch config from bridge /api/config (populates _CFG)
+// 2. Start the app with live config
+  function updateHealthScore(data) {
+    if (!data) return;
+    const temp = data.pool_temp || 0;
+    const target = data.target_temp || 84;
+    const pumpOn = data.pump_on;
+    const sensor = data.sensor || {};
+    const ph = sensor.ph || 0;
+    const cl = sensor.cl_value || 0;
+
+    // Chemistry score (0-100): pH 7.2-7.6 ideal, Cl 1-3 ideal
+    let chemScore = 75; // default when no sensor
+    if (ph > 0 || cl > 0) {
+      chemScore = 100;
+      if (ph > 0) {
+        const phDiff = Math.abs(ph - 7.4);
+        chemScore = Math.max(0, 100 - phDiff * 60);
+      }
+      if (cl > 0) {
+        // Cl ideal 1-3ppm. Below 0.5: very bad (-40). Above 5: bad (-30). 3-5: warning (-15)
+        if (cl < 0.5)      chemScore = Math.max(0, chemScore - 40);
+        else if (cl < 1)   chemScore = Math.max(0, chemScore - 25);
+        else if (cl > 5)   chemScore = Math.max(0, chemScore - 30);
+        else if (cl > 3)   chemScore = Math.max(0, chemScore - 15);
+      }
+    }
+
+    // Circulation score: pump running = 90+, off = 40
+    const flowScore = pumpOn ? 90 : 40;
+
+    // Temperature score: within 2F of target = 100, each degree off = -10
+    const tempScore = temp > 0 ? Math.max(0, 100 - Math.abs(temp - target) * 10) : 75;
+
+    // Energy score: based on pump watts (lower is better relative to RPM)
+    const watts = data.pump_watts || 0;
+    const energyScore = watts > 0 ? Math.max(60, 100 - Math.floor(watts / 50)) : 80;
+
+    // Weighted overall
+    const overall = Math.round(
+      chemScore * 0.35 +
+      flowScore * 0.30 +
+      tempScore * 0.20 +
+      energyScore * 0.15
+    );
+
+    // Update UI
+    const numEl = document.getElementById('healthScoreNum');
+    const labelEl = document.getElementById('healthScoreLabel');
+    const ringEl = document.getElementById('healthRingStroke');
+    const subEl = document.getElementById('healthSubScores');
+
+    if (!numEl) return;
+    numEl.textContent = overall;
+
+    // Ring: circumference 163.4, offset = 163.4 * (1 - score/100)
+    const offset = (163.4 * (1 - overall / 100)).toFixed(1);
+    if (ringEl) {
+      ringEl.setAttribute('stroke-dashoffset', offset);
+      ringEl.setAttribute('stroke', overall >= 80 ? '#1D9E75' : overall >= 60 ? '#EF9F27' : '#E24B4A');
+    }
+
+    if (labelEl) {
+      labelEl.textContent = overall >= 90 ? 'Excellent' : overall >= 75 ? 'Good' : overall >= 60 ? 'Fair' : 'Needs attention';
+      labelEl.style.color = overall >= 80 ? 'var(--teal)' : overall >= 60 ? 'var(--orange)' : '#E24B4A';
+    }
+
+    if (subEl) {
+      subEl.innerHTML =
+        '<span style="font-size:11px;padding:2px 7px;border-radius:10px;background:rgba(29,158,117,0.15);color:#0F6E56;">Chem ' + Math.round(chemScore) + '</span>' +
+        '<span style="font-size:11px;padding:2px 7px;border-radius:10px;background:rgba(55,138,221,0.15);color:#185FA5;">Flow ' + Math.round(flowScore) + '</span>' +
+        '<span style="font-size:11px;padding:2px 7px;border-radius:10px;background:rgba(239,159,39,0.15);color:#854F0B;">Temp ' + Math.round(tempScore) + '</span>';
+    }
+  }
+
+
+function debChemRecommend() {
+  var sensor = window._lastSensor || {};
+  var ph  = sensor.ph  || 0;
+  var cl  = sensor.cl_value || 0;
+  var orp = sensor.orp_value || 0;
+  var needs = [];
+
+  if (ph > 0 && ph < 7.2)  needs.push({id:'ph_up',   label:'pH Up 5lb',       reason:'pH '+ph.toFixed(2)+' — add 6 oz pH Up per 10,000 gal',         price:14.99});
+  else if (ph > 7.6)        needs.push({id:'ph_down',  label:'pH Down 5lb',     reason:'pH '+ph.toFixed(2)+' — add 6 oz pH Down per 10,000 gal',       price:12.99});
+  if (cl > 0 && cl < 1)    needs.push({id:'chlorine', label:'Chlorine Tablets 10lb', reason:'Chlorine '+cl.toFixed(1)+' ppm — add 1-2 tablets to feeder',    price:24.99});
+  if (cl > 0 && cl < 0.5)  needs.push({id:'shock',    label:'Shock Treatment 1lb', reason:'Chlorine critically low — shock with 1 lb per 10,000 gal',   price:8.99});
+  if (cl > 5)               needs.push({id:'none_cl',  label:null,               reason:'Chlorine '+cl.toFixed(1)+' ppm — stop dosing, let it drop naturally', price:null});
+  if (orp > 0 && orp < 450) needs.push({id:'shock',    label:'Pool Shock',       reason:'ORP '+orp+' mV — shock with 1 lb per 10,000 gal to boost oxidation', price:29.99});
+
+  var recEl = document.getElementById('debChemRec');
+  if (!recEl) return;
+  if (!ph && !cl) { recEl.style.display = 'none'; return; }
+
+  if (!needs.length) {
+    recEl.style.display = 'block';
+    recEl.innerHTML = '<div style="font-size:13px;color:var(--teal);padding:8px 0;">Water chemistry looks great - nothing needed.</div>';
+    return;
+  }
+
+  var buyable = needs.filter(function(n){return n.label;});
+  var out = '<div style="font-size:13px;color:var(--label2);margin-bottom:8px;">Deb recommends:</div>';
+  needs.forEach(function(n) {
+    out += '<div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px;padding:8px 0;border-bottom:1px solid var(--sep);">';
+    out += '<div style="font-size:13px;color:var(--label);line-height:1.4;">' + n.reason + '</div>';
+    if (n.label && n.price) {
+      out += '<button data-chem-id="'+n.id+'" data-chem-name="'+n.label+'" data-chem-price="'+n.price+'" class="deb-add-btn" '
+           + 'style="flex-shrink:0;background:var(--teal);border:none;border-radius:10px;padding:6px 12px;color:#000;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap;">Add to order</button>';
+    }
+    out += '</div>';
+  });
+  if (buyable.length > 1) {
+    out += '<button data-chem-all="1" class="deb-add-btn" style="width:100%;background:var(--teal);border:none;border-radius:12px;padding:10px;color:#000;font-size:14px;font-weight:700;cursor:pointer;margin-top:10px;">Add all to order</button>';
+  }
+  recEl.style.display = 'block';
+  recEl.innerHTML = out;
+
+  // Wire buttons via event delegation (avoids inline onclick quote issues)
+  recEl.querySelectorAll('.deb-add-btn').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      if (btn.dataset.chemAll) { debAddAllToCart(); }
+      else { debAddToCart(btn.dataset.chemId, btn.dataset.chemName, parseFloat(btn.dataset.chemPrice)); }
+    });
+  });
+}
+
+function debAddToCart(id, name, price) {
+  addToCart(id, name, price);
+  // Refresh recommendation display
+  setTimeout(debChemRecommend, 300);
+}
+
+function debAddAllToCart() {
+  const sensor = window._lastSensor || {};
+  const ph = sensor.ph || 0;
+  const cl = sensor.cl_value || 0;
+  const orp = sensor.orp_value || 0;
+  if (ph > 0 && ph < 7.2) addToCart('ph_up', 'pH Up', 14.99);
+  else if (ph > 7.6)       addToCart('ph_down', 'pH Down', 12.99);
+  if (cl > 0 && cl < 1)   addToCart('chlorine-tablets', 'Chlorine Tablets 10lb', 24.99);
+  if (cl < 0.5)            addToCart('shock-treatment', 'Shock Treatment 1lb', 8.99);
+  if (orp > 0 && orp < 450) addToCart('shock-treatment', 'Shock Treatment 1lb', 8.99);
+  setTimeout(debChemRecommend, 300);
+}
+
+
+function toggleOrderExpand() {
+  var det = document.getElementById('shopOrderDetails');
+  var chev = document.getElementById('shopOrderChevron');
+  if (!det) return;
+  var collapsed = det.style.display === 'none';
+  det.style.display = collapsed ? 'block' : 'none';
+  if (chev) chev.textContent = collapsed ? '▲' : '▼';
+}
+
+function updateShopDebHighlights() {
+  // Clear all highlights
+  document.querySelectorAll('[id^="shop-deb-badge-"]').forEach(function(el) { el.style.display = 'none'; });
+  document.querySelectorAll('[id^="shop-deb-reason-"]').forEach(function(el) { el.style.display = 'none'; el.textContent = ''; });
+  document.querySelectorAll('.shop-product-card').forEach(function(el) { el.style.borderColor = ''; });
+
+  var sensor = window._lastSensor || {};
+  var ph = sensor.ph || 0;
+  var cl = sensor.cl_value || 0;
+  var orp = sensor.orp_value || 0;
+
+  function highlight(debId, reason) {
+    var badge = document.getElementById('shop-deb-badge-' + debId);
+    var reasonEl = document.getElementById('shop-deb-reason-' + debId);
+    var card = document.getElementById('shop-item-' + debId);
+    if (badge) badge.style.display = 'inline-block';
+    if (reasonEl) { reasonEl.style.display = 'block'; reasonEl.textContent = 'Deb: ' + reason; }
+    if (card) card.style.borderColor = 'var(--teal)';
+  }
+
+  if (ph > 0 && ph < 7.2) highlight('ph_up', 'your pH is ' + ph.toFixed(2));
+  else if (ph > 7.6)       highlight('ph_down', 'your pH is ' + ph.toFixed(2));
+  if (cl > 0 && cl < 1)   highlight('chlorine', 'chlorine at ' + cl.toFixed(1) + ' ppm');
+  if (cl > 0 && cl < 0.5) highlight('shock', 'chlorine critically low');
+  if (orp > 0 && orp < 450) highlight('shock', 'ORP ' + orp + ' mV');
+}
+
+
+async function bootApp() {
+  // Detect bridge URL — on native app use stored location,
+  // on web use current origin (the Pi serves both bridge + app)
+  // Try bridge URLs in priority order until one responds
+  // Works whether on home WiFi, remote via Tailscale, or served from Pi
+  const stored = (() => { try { return localStorage.getItem('pool_bridge_url'); } catch(e) { return null; } })();
+  const origin = window.location.origin;
+  const originGuess = origin.includes(':808') ? origin.replace(':8081',':8080').replace(':8082',':8080') : null;
+  const BRIDGE_CANDIDATES = [stored, 'http://192.168.1.239:8080', 'http://100.123.68.123:8080', originGuess].filter(Boolean);
+
+  for (const candidate of BRIDGE_CANDIDATES) {
+    try {
+      const test = await fetch(candidate + '/api/ping', { signal: AbortSignal.timeout(3000) });
+      const td = await test.json();
+      if (td && td.ok) {
+        BRIDGE_BASE = candidate;
+        try { localStorage.setItem('pool_bridge_url', candidate); } catch(e) {}
+        console.log('[boot] Bridge connected:', candidate);
+        break;
+      }
+    } catch(e) { /* try next */ }
+  }
+  if (!BRIDGE_BASE) BRIDGE_BASE = stored || 'http://192.168.1.239:8080';
+
+  try {
+    const r = await fetch(BRIDGE_BASE + '/api/config', { signal: AbortSignal.timeout(5000) });
+    if (r.ok) {
+      const d = await r.json();
+      const cfg = d.data || d;
+      _CFG.pool_name      = cfg.pool_name      || 'My Pool';
+      _CFG.supabase_url   = cfg.supabase_url   || '';
+      _CFG.supabase_key   = cfg.supabase_key   || '';
+      _CFG.features       = cfg.features       || _CFG.features;
+      // Tuya config from bridge
+      if (cfg.tuya) {
+        TUYA_ACCESS_ID = cfg.tuya.access_id  || '';
+        TUYA_SECRET    = cfg.tuya.secret      || '';
+        TUYA_DEVICE_ID = cfg.tuya.device_id   || '';
+        TUYA_REGION    = cfg.tuya.region      || 'us';
+        TUYA_BASE      = 'https://openapi.tuya' + TUYA_REGION + '.com';
+        _CFG.tuya_access_id = TUYA_ACCESS_ID;
+        _CFG.tuya_secret    = TUYA_SECRET;
+        _CFG.tuya_device_id = TUYA_DEVICE_ID;
+      }
+      // Update pool name in UI
+      const nameEl = document.getElementById('poolName') || document.querySelector('.pool-name');
+      if (nameEl) nameEl.textContent = _CFG.pool_name;
+    }
+  } catch(e) {
+    console.warn('[boot] config fetch failed, running with defaults:', e.message);
+  }
+
+  checkOnboarding();
+  loadLocations();
+  initSprint4();
+
+  // Auto-show demo mode if bridge unreachable after 8s.
+  // This ensures App Store reviewers (who have no Pi) can use the app.
+  // Also activated by ?demo=1 URL param.
+  const urlParams = new URLSearchParams(window.location.search);
+  if (urlParams.get('demo') === '1') {
+    setTimeout(function() { enableDemoMode(); }, 500);
+  } else {
+    setTimeout(function() {
+      if (!bridgeOnline) {
+        // Show a non-blocking demo banner
+        const existing = document.getElementById('demoBanner');
+        if (existing) return;
+        const banner = document.createElement('div');
+        banner.id = 'demoBanner';
+        banner.style.cssText = [
+          'position:fixed', 'bottom:90px', 'left:50%',
+          'transform:translateX(-50%)', 'z-index:9999',
+          'background:#1c1c1e', 'border:1px solid rgba(48,214,180,0.4)',
+          'border-radius:16px', 'padding:16px 20px', 'text-align:center',
+          'max-width:320px', 'width:calc(100% - 40px)',
+          'box-shadow:0 8px 32px rgba(0,0,0,0.5)'
+        ].join(';');
+        banner.innerHTML = [
+          '<div style="font-size:28px;margin-bottom:8px">🏊</div>',
+          '<div style="font-size:15px;font-weight:600;color:#fff;margin-bottom:6px">No Pool Boy Kit connected</div>',
+          '<div style="font-size:13px;color:rgba(255,255,255,0.5);margin-bottom:14px;line-height:1.4">',
+          'Explore the app with a demo pool</div>',
+          '<button onclick="enableDemoMode();document.getElementById(\'demoBanner\').remove()" ',
+          'style="background:#30d6b4;border:none;border-radius:12px;padding:12px 24px;',
+          'color:#000;font-size:15px;font-weight:700;cursor:pointer;width:100%">',
+          'Try Demo Mode</button>',
+          '<button onclick="document.getElementById(\'demoBanner\').remove()" ',
+          'style="background:none;border:none;color:rgba(255,255,255,0.4);',
+          'font-size:13px;cursor:pointer;margin-top:10px;width:100%">',
+          'I have a kit — keep trying</button>'
+        ].join('');
+        document.body.appendChild(banner);
+      }
+    }, 8000);
+  }
+}
+
+bootApp();
+</script>
+
+<!-- ═══ ALEXA CONNECT MODAL ═══ -->
+<div id="alexaModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:9999;align-items:flex-end;justify-content:center;backdrop-filter:blur(8px);">
+  <div style="background:#1a1a2e;border-radius:24px 24px 0 0;padding:28px 24px 40px;width:100%;max-width:480px;border-top:1px solid rgba(255,255,255,0.1);">
+    <!-- Handle -->
+    <div style="width:36px;height:4px;background:rgba(255,255,255,0.2);border-radius:2px;margin:0 auto 24px;"></div>
+    <!-- Header -->
+    <div style="display:flex;align-items:center;gap:14px;margin-bottom:20px;">
+      <div style="width:52px;height:52px;background:linear-gradient(135deg,#00CAFF,#0064FF);border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:900;color:white;flex-shrink:0;">A</div>
+      <div>
+        <div style="font-size:18px;font-weight:700;color:#fff;">Amazon Alexa</div>
+        <div id="alexaModalStatus" style="font-size:13px;color:rgba(255,255,255,0.5);margin-top:2px;">Tap below to connect</div>
+      </div>
+    </div>
+    <!-- Connected state -->
+    <div id="alexaConnectedBlock" style="display:none;background:rgba(48,214,180,0.08);border:1px solid rgba(48,214,180,0.2);border-radius:14px;padding:14px 16px;margin-bottom:18px;">
+      <div style="font-size:13px;color:#30d6b4;font-weight:600;margin-bottom:4px;">✓ Account linked</div>
+      <div style="font-size:12px;color:rgba(255,255,255,0.5);">Say <span style="color:#fff;font-style:italic;">"Alexa, turn on pool pump"</span> to get started</div>
+    </div>
+    <!-- Steps — only shown when not connected -->
+    <div id="alexaStepsBlock">
+      <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:20px;">
+        <div style="display:flex;align-items:flex-start;gap:12px;">
+          <div style="width:22px;height:22px;background:rgba(0,180,216,0.15);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#00b4d8;flex-shrink:0;margin-top:1px;">1</div>
+          <div style="font-size:14px;color:rgba(255,255,255,0.7);line-height:1.4;">Tap <b style="color:#fff;">Enable Skill</b> below — opens the Alexa app</div>
+        </div>
+        <div style="display:flex;align-items:flex-start;gap:12px;">
+          <div style="width:22px;height:22px;background:rgba(0,180,216,0.15);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#00b4d8;flex-shrink:0;margin-top:1px;">2</div>
+          <div style="font-size:14px;color:rgba(255,255,255,0.7);line-height:1.4;">Sign in with your <b style="color:#fff;">Smarter Pool account</b></div>
+        </div>
+        <div style="display:flex;align-items:flex-start;gap:12px;">
+          <div style="width:22px;height:22px;background:rgba(0,180,216,0.15);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#00b4d8;flex-shrink:0;margin-top:1px;">3</div>
+          <div style="font-size:14px;color:rgba(255,255,255,0.7);line-height:1.4;">Say <b style="color:#fff;">"Alexa, discover devices"</b> — done</div>
+        </div>
+      </div>
+      <!-- CTA button -->
+      <button onclick="enableAlexaSkill()" style="width:100%;background:linear-gradient(135deg,#00CAFF,#0064FF);color:white;border:none;border-radius:14px;padding:16px;font-size:16px;font-weight:700;cursor:pointer;letter-spacing:-0.2px;">
+        Enable Skill in Alexa App
+      </button>
+      <div style="text-align:center;margin-top:10px;font-size:12px;color:rgba(255,255,255,0.3);">Opens the Amazon Alexa app on your phone</div>
+    </div>
+    <!-- Disconnect (shown when connected) -->
+    <div id="alexaDisconnectBlock" style="display:none;margin-top:12px;">
+      <button onclick="disconnectAlexa()" style="width:100%;background:rgba(255,59,48,0.1);border:1px solid rgba(255,59,48,0.25);color:rgba(255,59,48,0.8);border-radius:12px;padding:13px;font-size:14px;font-weight:600;cursor:pointer;">
+        Disconnect Alexa
+      </button>
+    </div>
+    <!-- Cancel -->
+    <button onclick="document.getElementById('alexaModal').style.display='none'" style="width:100%;background:rgba(255,255,255,0.06);border:none;border-radius:12px;padding:13px;color:rgba(255,255,255,0.5);font-size:14px;cursor:pointer;margin-top:10px;">
+      Cancel
+    </button>
+  </div>
+</div>
+
+<script>
+// ── Alexa Connect ─────────────────────────────────────────────────────────────
+// Skill ID for deep-link into Alexa app
+const ALEXA_SKILL_ID = 'amzn1.ask.skill.24bdcccd-6080-49d1-8400-7e125badb25c';
+
+function checkAlexaStatus() {
+  // Check localStorage for linked state (set after OAuth callback)
+  const linked = localStorage.getItem('alexa_linked') === 'true';
+  const subEl = document.getElementById('alexaStatusSub');
+  if (subEl) {
+    subEl.textContent = linked ? 'Connected · "Alexa, turn on pool pump"' : 'Tap to connect';
+    subEl.style.color = linked ? 'var(--green)' : '';
+  }
+  return linked;
+}
+
+function openAlexaConnect() {
+  const linked = checkAlexaStatus();
+  const modal = document.getElementById('alexaModal');
+  const connectedBlock = document.getElementById('alexaConnectedBlock');
+  const stepsBlock = document.getElementById('alexaStepsBlock');
+  const disconnectBlock = document.getElementById('alexaDisconnectBlock');
+  const statusEl = document.getElementById('alexaModalStatus');
+
+  if (linked) {
+    connectedBlock.style.display = 'block';
+    stepsBlock.style.display = 'none';
+    disconnectBlock.style.display = 'block';
+    statusEl.textContent = 'Your pool is linked to Alexa';
+  } else {
+    connectedBlock.style.display = 'none';
+    stepsBlock.style.display = 'block';
+    disconnectBlock.style.display = 'none';
+    statusEl.textContent = '3 steps · takes about 1 minute';
+  }
+
+  modal.style.display = 'flex';
+}
+
+function enableAlexaSkill() {
+  // Deep-link to Alexa app skill page
+  // On iOS/Android this opens the Alexa app directly to the skill
+  const alexaAppUrl = `alexa://skills/${ALEXA_SKILL_ID}`;
+  const alexaWebUrl = `https://www.amazon.com/dp/B0F6QJTF0R`;  // TODO: update with ASIN after publish
+
+  // Try app deep-link first; fall back to web
+  const isNative = window.Capacitor && window.Capacitor.isNativePlatform && window.Capacitor.isNativePlatform();
+  if (isNative) {
+    window.open(alexaAppUrl, '_system');
+  } else {
+    window.open(alexaWebUrl, '_blank');
+  }
+
+  // Mark as pending — user will confirm when they come back
+  setTimeout(() => {
+    if (confirm('Did you successfully enable the Smarter Pool skill in Alexa?')) {
+      localStorage.setItem('alexa_linked', 'true');
+      checkAlexaStatus();
+      document.getElementById('alexaModal').style.display = 'none';
+    }
+  }, 3000);
+}
+
+function disconnectAlexa() {
+  if (confirm('Disconnect Smarter Pool from Alexa? You can reconnect any time.')) {
+    localStorage.removeItem('alexa_linked');
+    checkAlexaStatus();
+    document.getElementById('alexaModal').style.display = 'none';
+  }
+}
+
+// Run on settings tab open
+document.addEventListener('DOMContentLoaded', function() {
+  checkAlexaStatus();
+  updateServiceReminder('green'); // show correct state on load
+});
+// Also run when returning to the app after Alexa redirect
+document.addEventListener('visibilitychange', () => {
+  if (!document.hidden) checkAlexaStatus();
+});
+// ─────────────────────────────────────────────────────────────────────────────
+</script>
+
+</body>
+</html>
