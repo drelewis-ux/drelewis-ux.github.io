@@ -2061,7 +2061,7 @@ function updateServiceReminder(severity) {
     if (lightEl) { lightEl.style.borderColor = '#ff9f0a55'; lightEl.style.background = 'rgba(255,159,10,0.1)'; lightEl.textContent = '⚠️'; }
   } else if (daysSince > 30) {
     titleEl.textContent    = 'Time for a water test';
-    descEl.textContent     = 'Get a free test at your pool store — checks CYA, alkalinity & hardness that the sensor can't measure.';
+    descEl.textContent     = 'Get a free water test at your pool store — checks things the sensor cannot see.';
     if (lightEl) { lightEl.style.borderColor = 'rgba(255,159,10,0.3)'; lightEl.style.background = 'rgba(255,159,10,0.1)'; lightEl.textContent = '🧪'; }
   } else {
     titleEl.textContent    = 'Water test up to date';
@@ -2936,10 +2936,6 @@ async function loadHistoryCharts() {
 // ═══════════════════════════════════════════════════════════════════
 // GUEST ACCESS
 // ═══════════════════════════════════════════════════════════════════
-function generateGuestCode() {
-  return Math.random().toString(36).substring(2, 8).toUpperCase();
-}
-
 async function createGuestAccess() {
   const name    = prompt('Guest name (e.g. "House sitter" or "Family"):');
   if (!name) return;
@@ -3374,15 +3370,12 @@ function updateShopDebHighlights() {
 async function bootApp() {
   // Detect bridge URL — on native app use stored location,
   // on web use current origin (the Pi serves both bridge + app)
-  // Bridge URL priority:
-  // 1. Supabase proxy (HTTPS — works from GitHub Pages, no mixed content)
-  // 2. URL param override
-  // 3. Stored local URL (set when on home WiFi directly)
-  // 4. Local IP direct (works when served from Pi or on same network)
-  const urlParam = new URLSearchParams(window.location.search).get('bridge');
+  // Try bridge URLs in priority order until one responds
+  // Works whether on home WiFi, remote via Tailscale, or served from Pi
   const stored = (() => { try { return localStorage.getItem('pool_bridge_url'); } catch(e) { return null; } })();
-  const PROXY = 'https://ajckfhaalcfdkjlsidgv.supabase.co/functions/v1/bridge-proxy';
-  const BRIDGE_CANDIDATES = [urlParam, PROXY, stored, 'http://192.168.1.239:8080', 'http://100.123.68.123:8080'].filter(Boolean);
+  const origin = window.location.origin;
+  const originGuess = origin.includes(':808') ? origin.replace(':8081',':8080').replace(':8082',':8080') : null;
+  const BRIDGE_CANDIDATES = [stored, 'http://192.168.1.239:8080', 'http://100.123.68.123:8080', originGuess].filter(Boolean);
 
   for (const candidate of BRIDGE_CANDIDATES) {
     try {
@@ -3602,7 +3595,7 @@ function disconnectAlexa() {
 // Run on settings tab open
 document.addEventListener('DOMContentLoaded', function() {
   checkAlexaStatus();
-  updateServiceReminder('green'); // show correct state on load
+  if (typeof updateServiceReminder === 'function') updateServiceReminder('green');
 });
 // Also run when returning to the app after Alexa redirect
 document.addEventListener('visibilitychange', () => {
