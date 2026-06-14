@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Smarter Pool — Dealer Dashboard</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #0a0f1a; color: #fff; min-height: 100vh; }
+
+    .header { background: #0d1420; border-bottom: 1px solid rgba(255,255,255,0.08); padding: 16px 24px; display: flex; align-items: center; justify-content: space-between; }
+    .header h1 { font-size: 18px; font-weight: 700; }
+    .header h1 span { color: #00d4ff; }
+    .status-summary { display: flex; gap: 8px; }
+    .badge { padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; }
+    .badge-green { background: rgba(48,214,180,0.15); color: #30d6b4; border: 1px solid rgba(48,214,180,0.3); }
+    .badge-amber { background: rgba(255,159,10,0.15); color: #ff9f0a; border: 1px solid rgba(255,159,10,0.3); }
+    .badge-red   { background: rgba(255,69,58,0.15); color: #ff453a; border: 1px solid rgba(255,69,58,0.3); }
+
+    .content { padding: 20px 24px; max-width: 1200px; margin: 0 auto; }
+    .section-title { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: .1em; color: rgba(255,255,255,0.3); margin-bottom: 12px; }
+
+    .pool-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 14px; margin-bottom: 24px; }
+    
+    .pool-card { background: #0d1420; border: 1px solid rgba(255,255,255,0.08); border-radius: 16px; padding: 16px; border-left: 3px solid #30d6b4; transition: border-color .3s; cursor: pointer; }
+    .pool-card:hover { border-color: rgba(255,255,255,0.2); }
+    .pool-card.amber { border-left-color: #ff9f0a; }
+    .pool-card.red   { border-left-color: #ff453a; }
+    .pool-card.offline { border-left-color: rgba(255,255,255,0.2); opacity: .6; }
+
+    .card-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+    .card-name { font-size: 15px; font-weight: 600; }
+    .card-status { font-size: 11px; font-weight: 600; padding: 3px 8px; border-radius: 10px; }
+    .status-online  { background: rgba(48,214,180,0.1); color: #30d6b4; }
+    .status-warning { background: rgba(255,159,10,0.1); color: #ff9f0a; }
+    .status-alert   { background: rgba(255,69,58,0.1); color: #ff453a; }
+    .status-offline { background: rgba(255,255,255,0.05); color: rgba(255,255,255,0.3); }
+
+    .card-metrics { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-bottom: 10px; }
+    .metric { text-align: center; }
+    .metric-val { font-size: 18px; font-weight: 700; }
+    .metric-label { font-size: 10px; color: rgba(255,255,255,0.35); text-transform: uppercase; letter-spacing: .05em; margin-top: 2px; }
+
+    .card-footer { display: flex; align-items: center; justify-content: space-between; padding-top: 10px; border-top: 1px solid rgba(255,255,255,0.06); }
+    .card-address { font-size: 11px; color: rgba(255,255,255,0.3); }
+    .card-uptime { font-size: 11px; color: rgba(255,255,255,0.3); }
+
+    .action-bar { display: flex; gap: 8px; margin-top: 10px; }
+    .btn { padding: 6px 12px; border-radius: 8px; font-size: 12px; font-weight: 600; cursor: pointer; border: none; }
+    .btn-update  { background: rgba(0,212,255,0.1); color: #00d4ff; border: 1px solid rgba(0,212,255,0.2); }
+    .btn-restart { background: rgba(255,159,10,0.1); color: #ff9f0a; border: 1px solid rgba(255,159,10,0.2); }
+    .btn-reboot  { background: rgba(255,69,58,0.1); color: #ff453a; border: 1px solid rgba(255,69,58,0.2); }
+
+    .alert-banner { background: rgba(255,69,58,0.08); border: 1px solid rgba(255,69,58,0.2); border-radius: 12px; padding: 12px 16px; margin-bottom: 16px; font-size: 13px; color: #ff453a; display: none; }
+
+    .loading { text-align: center; padding: 60px; color: rgba(255,255,255,0.3); }
+    .refresh-btn { background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1); color: rgba(255,255,255,0.5); padding: 6px 14px; border-radius: 8px; font-size: 12px; cursor: pointer; }
+    .last-refresh { font-size: 11px; color: rgba(255,255,255,0.2); }
+  </style>
+</head>
+<body>
+
+<div class="header">
+  <h1>Smarter Pool <span>Dealer Dashboard</span></h1>
+  <div style="display:flex;align-items:center;gap:12px;">
+    <span class="last-refresh" id="lastRefresh">Loading...</span>
+    <button class="refresh-btn" onclick="loadAll()">↻ Refresh</button>
+    <div class="status-summary">
+      <span class="badge badge-green" id="countOnline">— Online</span>
+      <span class="badge badge-amber" id="countWarning">— Warning</span>
+      <span class="badge badge-red" id="countOffline">— Offline</span>
+    </div>
+  </div>
+</div>
+
+<div class="content">
+  <div class="alert-banner" id="alertBanner"></div>
+  <div class="section-title">All Customer Pools</div>
+  <div class="pool-grid" id="poolGrid">
+    <div class="loading">Loading pool data...</div>
+  </div>
+</div>
+
+<script>
+const SUPABASE_URL  = "https://ajckfhaalcfdkjlsidgv.supabase.co";
+const SUPABASE_ANON = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFqY2tmaGFhbGNmZGtqbHNpZGd2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODAzNzY2NjYsImV4cCI6MjA5NTk1MjY2Nn0.ZNqP0jrLpx3q4lzhiPj2j_jQm4zHkCftSX2DPZxLI-M";
+
+let pools = [];
+
+async function sb(path) {
+  const r = await fetch(SUPABASE_URL + path, {
+    headers: { "apikey": SUPABASE_ANON, "Authorization": "Bearer " + SUPABASE_ANON }
+  });
+  return r.json();
+}
+
+async function pingPool(pool) {
+  // Try to reach pool via bridge proxy
+  const bridgeUrl = "http://" + pool.bridge_ip + ":" + (pool.bridge_port || 8080);
+  try {
+    const r = await fetch(SUPABASE_URL + "/functions/v1/bridge-proxy/api/health", {
+      headers: { "Authorization": "Bearer " + SUPABASE_ANON, "x-bridge-url": bridgeUrl },
+      signal: AbortSignal.timeout(5000)
+    });
+    const d = await r.json();
+    return d.ok ? { online: true, data: d.data } : { online: false };
+  } catch(e) {
+    return { online: false };
+  }
+}
+
+async function sendRemoteCommand(deviceId, command) {
+  const r = await fetch(SUPABASE_URL + "/rest/v1/remote_commands", {
+    method: "POST",
+    headers: {
+      "apikey": SUPABASE_ANON,
+      "Authorization": "Bearer " + SUPABASE_ANON,
+      "Content-Type": "application/json",
+      "Prefer": "return=representation"
+    },
+    body: JSON.stringify({ device_id: deviceId, command })
+  });
+  return r.json();
+}
+
+function timeAgo(ts) {
+  if (!ts) return "never";
+  const seconds = Math.floor((Date.now() - new Date(ts)) / 1000);
+  if (seconds < 60) return seconds + "s ago";
+  if (seconds < 3600) return Math.floor(seconds/60) + "m ago";
+  if (seconds < 86400) return Math.floor(seconds/3600) + "h ago";
+  return Math.floor(seconds/86400) + "d ago";
+}
+
+function getCardClass(pool, online) {
+  if (!online) return "offline";
+  if (pool._alerts && pool._alerts.length > 0) return "red";
+  return "";
+}
+
+function renderCard(pool, status) {
+  const online = status && status.online;
+  const data = status && status.data || {};
+  const cardClass = online ? "" : "offline";
+
+  // Simple alert detection
+  const alerts = [];
+  if (online && data.pool_temp && data.pool_temp < 50) alerts.push("Freeze risk");
+
+  return \`
+    <div class="pool-card \${cardClass}" id="card-\${pool.device_id}">
+      <div class="card-header">
+        <div class="card-name">\${pool.name || "Pool"}</div>
+        <span class="card-status \${online ? "status-online" : "status-offline"}">\${online ? "Online" : "Offline"}</span>
+      </div>
+      <div class="card-metrics">
+        <div class="metric">
+          <div class="metric-val" style="color:\${online ? "#30d6b4" : "rgba(255,255,255,0.2)"}">\${online && data.pool_temp ? Math.round(data.pool_temp) + "°" : "—"}</div>
+          <div class="metric-label">Temp</div>
+        </div>
+        <div class="metric">
+          <div class="metric-val" style="color:\${online ? "#00d4ff" : "rgba(255,255,255,0.2)"}">\${online ? (data.pump_on ? "ON" : "OFF") : "—"}</div>
+          <div class="metric-label">Pump</div>
+        </div>
+        <div class="metric">
+          <div class="metric-val" style="color:\${online ? "#30d6b4" : "rgba(255,255,255,0.2)"}">\${online && data.uptime ? Math.floor(data.uptime/3600) + "h" : "—"}</div>
+          <div class="metric-label">Uptime</div>
+        </div>
+      </div>
+      \${alerts.length ? \`<div style="font-size:12px;color:#ff453a;margin-bottom:8px;">⚠️ \${alerts.join(", ")}</div>\` : ""}
+      <div class="card-footer">
+        <span class="card-address">\${pool.bridge_ip || pool.tailscale_ip || "—"}:\${pool.bridge_port || 8080}</span>
+        <span class="card-uptime">ID: \${(pool.device_id || "—").slice(0,16)}</span>
+      </div>
+      <div class="action-bar">
+        <button class="btn btn-update" onclick="remoteCmd('\${pool.device_id}','update')">↑ Update</button>
+        <button class="btn btn-restart" onclick="remoteCmd('\${pool.device_id}','restart')">↺ Restart</button>
+        <button class="btn btn-reboot" onclick="remoteCmd('\${pool.device_id}','reboot')">⟳ Reboot</button>
+      </div>
+    </div>
+  \`;
+}
+
+async function remoteCmd(deviceId, command) {
+  if (!confirm(\`Send \${command} command to \${deviceId}?\`)) return;
+  try {
+    await sendRemoteCommand(deviceId, command);
+    alert(\`\${command} command sent. The Pi will execute it within 5 seconds.\`);
+  } catch(e) {
+    alert("Failed to send command: " + e.message);
+  }
+}
+
+async function loadAll() {
+  const grid = document.getElementById("poolGrid");
+  grid.innerHTML = '<div class="loading">Checking all pools...</div>';
+
+  // Load all locations
+  const locations = await sb("/rest/v1/locations?select=*&is_active=eq.true&order=name");
+  if (!locations || !locations.length) {
+    grid.innerHTML = '<div class="loading">No pools registered yet.</div>';
+    return;
+  }
+
+  // Ping each pool
+  const results = await Promise.all(locations.map(async loc => {
+    const status = await pingPool(loc);
+    return { pool: loc, status };
+  }));
+
+  // Count status
+  let online = 0, warning = 0, offline = 0;
+  results.forEach(({ pool, status }) => {
+    if (!status.online) offline++;
+    else online++;
+  });
+
+  document.getElementById("countOnline").textContent = online + " Online";
+  document.getElementById("countWarning").textContent = warning + " Warning";
+  document.getElementById("countOffline").textContent = offline + " Offline";
+
+  // Show alert if any offline
+  const banner = document.getElementById("alertBanner");
+  if (offline > 0) {
+    banner.style.display = "block";
+    banner.textContent = \`⚠️ \${offline} pool\${offline > 1 ? "s are" : " is"} offline — check connectivity.\`;
+  } else {
+    banner.style.display = "none";
+  }
+
+  grid.innerHTML = results.map(({ pool, status }) => renderCard(pool, status)).join("");
+  document.getElementById("lastRefresh").textContent = "Updated " + new Date().toLocaleTimeString();
+}
+
+// Load on start, refresh every 60s
+loadAll();
+setInterval(loadAll, 60000);
+</script>
+</body>
+</html>
