@@ -3375,7 +3375,17 @@ async function bootApp() {
   const stored = (() => { try { return localStorage.getItem('pool_bridge_url'); } catch(e) { return null; } })();
   const origin = window.location.origin;
   const originGuess = origin.includes(':808') ? origin.replace(':8081',':8080').replace(':8082',':8080') : null;
-  const BRIDGE_CANDIDATES = [stored, 'http://192.168.1.239:8080', 'http://100.123.68.123:8080', originGuess].filter(Boolean);
+  // Native Capacitor: use HTTP directly (no mixed content restriction)
+  // Web browser (GitHub Pages HTTPS): use Supabase HTTPS proxy
+  const isNative = !!(window.Capacitor && window.Capacitor.isNativePlatform && window.Capacitor.isNativePlatform());
+  const PROXY = 'https://ajckfhaalcfdkjlsidgv.supabase.co/functions/v1/bridge-proxy';
+  const BRIDGE_CANDIDATES = [
+    stored,
+    isNative ? 'http://192.168.1.239:8080' : null,
+    isNative ? 'http://100.123.68.123:8080' : null,
+    !isNative ? PROXY : null,
+    originGuess,
+  ].filter(Boolean);
 
   for (const candidate of BRIDGE_CANDIDATES) {
     try {
