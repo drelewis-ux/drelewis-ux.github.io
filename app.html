@@ -2620,18 +2620,47 @@ function initSprint4() {
 
 // ── Deb Home Summary Card ──
 function updateDebSummary(pool, chemistry) {
-  // Water chemistry status — unique info Deb provides
-  const ph = chemistry && parseFloat(chemistry.ph);
-  const cl = chemistry && parseFloat(chemistry.cl_value);
+  // Water status using ORP as primary safety indicator
+  const ph  = chemistry && parseFloat(chemistry.ph);
+  const cl  = chemistry && parseFloat(chemistry.cl_value);
+  const orp = chemistry && parseFloat(chemistry.orp_value);
   let waterMsg = 'Connect your YINMIK sensor for chemistry readings.';
-  if (ph && cl) {
-    const phOk = ph >= 7.2 && ph <= 7.6;
-    const clOk = cl >= 1 && cl <= 3;
-    if (phOk && clOk) waterMsg = '✓ Water chemistry looks good';
-    else if (!phOk) waterMsg = '⚠ pH ' + ph.toFixed(1) + ' — ' + (ph < 7.2 ? 'add pH Up' : 'add pH Down');
-    else if (!clOk) waterMsg = '⚠ Chlorine ' + (cl < 1 ? 'low — add chlorine' : 'high — stop dosing');
+  let waterColor = 'var(--label2)';
+
+  if (orp || ph || cl) {
+    // ORP is the real safety indicator — drives the primary message
+    if (orp && orp < 500) {
+      waterMsg = '🔴 Do not swim — sanitizing power critically low';
+      waterColor = '#ff453a';
+    } else if (orp && orp < 600 && cl && cl >= 1.0) {
+      waterMsg = '⚠️ Needs attention — test water at your pool store before swimming';
+      waterColor = '#ff9f0a';
+    } else if (orp && orp < 600) {
+      waterMsg = '⚠️ Sanitizing power low — pick up chlorine shock';
+      waterColor = '#ff9f0a';
+    } else if (cl && cl < 1.0) {
+      waterMsg = '⚠️ Chlorine low (' + cl.toFixed(1) + ' ppm) — add chlorine tablets';
+      waterColor = '#ff9f0a';
+    } else if (cl && cl > 5.0) {
+      waterMsg = '⚠️ Chlorine high (' + cl.toFixed(1) + ' ppm) — test before swimming';
+      waterColor = '#ff9f0a';
+    } else if (ph && (ph < 7.2 || ph > 7.8)) {
+      waterMsg = '⚠️ pH ' + ph.toFixed(1) + ' — ' + (ph < 7.2 ? 'pick up pH Up' : 'pick up pH Down');
+      waterColor = '#ff9f0a';
+    } else if (orp && orp >= 650) {
+      waterMsg = '✓ Safe to swim — water chemistry good';
+      waterColor = 'var(--green)';
+    } else {
+      waterMsg = '✓ Water chemistry looks good';
+      waterColor = 'var(--green)';
+    }
   }
-  document.getElementById('debWaterStatus').textContent = waterMsg;
+
+  const statusEl = document.getElementById('debWaterStatus');
+  if (statusEl) {
+    statusEl.textContent = waterMsg;
+    statusEl.style.color = waterColor;
+  }
 
   // Deb summary — only what the UI above doesn't show
   const heater = pool && pool.heat_mode > 0;
